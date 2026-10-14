@@ -28,10 +28,7 @@ function Hero(p: ViewProps) {
       <div className="grid-bg pointer-events-none absolute inset-0" aria-hidden />
       <div className="page-shell relative grid min-h-[calc(100vh-100px)] items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-8">
         <div className="min-w-0">
-          <span className="rise pill">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-good shadow-[0_0_10px_var(--good)]" />
-            Mirror launches · one token, four chains
-          </span>
+          
 
           <h1 className="display rise mt-7 text-[clamp(44px,6.4vw,92px)]" style={{ animationDelay: "80ms" }}>
             Launch once.
