@@ -4,6 +4,7 @@ import { CHAIN, STATUS_LABEL, type Draft, type Launchpad, type Mirrors } from "@
 import { cn, fmtBps, fmtUsd } from "@/lib/format";
 import { costLegs, devBuyOf, gasFor, totalUsd } from "@/lib/launch";
 import { usePrices } from "../use-prices";
+import { useWallet } from "../wallet/context";
 import { Alert, Bolt, ChainMark, Receipt, Rocket, Wallet } from "../icons";
 import { Badge, Button, Notice, Row, TokenAvatar } from "../ui";
 import type { Balance } from "../wallet/use-balance";
@@ -72,6 +73,8 @@ export function LaunchSummary({
 
   const ready = issues.length === 0;
   const prices = usePrices();
+  const { signer } = useWallet();
+  const price = prices[chain.nativeToken] ?? 0;
   const legs = costLegs(pad, draft, mirrors, prices);
   const multi = legs.length > 1;
   const devBuy = devBuyOf(pad, draft);
@@ -182,7 +185,9 @@ export function LaunchSummary({
         </Button>
       )}
       <p className="px-2 text-center text-[11.5px] leading-[16px] text-mute">
-        Simulated deployments. Fees, curve parameters and thresholds are editable defaults, not live quotes from each venue.
+        {signer
+          ? "Real mainnet transactions, signed by your wallet. Venue fees and thresholds shown here are estimates; the venue's own terms apply."
+          : "Simulated deployments. Fees, curve parameters and thresholds are editable defaults, not live quotes from each venue."}
       </p>
     </div>
   );

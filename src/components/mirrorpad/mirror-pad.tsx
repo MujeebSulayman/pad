@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CHAIN, EMPTY_DRAFT, PAD, SEED_LAUNCHES, padsOn, type ChainId, type Draft, type Launch, type Launchpad, type Mirrors } from "@/lib/data";
+import { api } from "@/lib/api";
+import { PRIVY_APP_ID } from "@/lib/env";
 import { mintAddress, txHash } from "@/lib/format";
 import { validate } from "@/lib/launch";
 import { useToast } from "../toast";
@@ -24,7 +26,9 @@ export function MirrorPad() {
   const [scope, setScope] = useState<Scope>("chain");
   const [sort, setSort] = useState<Sort>("default");
   const [mirrors, setMirrors] = useState<Mirrors>({});
+  // The demo build shows sample rows; with real wallets the feed only holds verified launches.
   const [launches, setLaunches] = useState<Launch[]>(() => {
+    if (PRIVY_APP_ID) return [];
     const now = Date.now();
     return SEED_LAUNCHES.map(({ minsAgo, ...l }) => ({
       ...l,
@@ -34,6 +38,21 @@ export function MirrorPad() {
     }));
   });
 
+  // The shared feed from the database, refreshed every minute. Missing database → keep what we have.
+  useEffect(() => {
+    let alive = true;
+    const load = () =>
+      api<{ launches: Launch[] }>("/api/launches")
+        .then(({ launches: rows }) => alive && setLaunches((cur) => (rows.length || PRIVY_APP_ID ? rows : cur)))
+        .catch(() => {});
+    load();
+    const t = setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
+
   const pad = PAD[padId];
   const chainInfo = CHAIN[chain];
   const wallet = useWallet();
@@ -41,7 +60,7 @@ export function MirrorPad() {
   const address = wallet.addressFor(chain);
   // Simulated addresses don't exist on-chain, so only real wallets get a balance lookup.
   const balance = useBalance(chain, address, wallet.mode === "privy");
-  const { errors, issues } = useMemo(() => validate(draft, pad), [draft, pad]);
+  const { errors, issues } = useMemo(() => validate(draft, pad, mirrors), [draft, pad, mirrors]);
 
   // Toast on connect / disconnect, but not when a saved session is restored on load.
   const wasConnected = useRef<boolean | null>(null);
@@ -117,7 +136,7 @@ export function MirrorPad() {
           pad={pad}
           draft={draft}
           mirrors={mirrors}
-          onComplete={(rows) => setLaunches((all) => [...rows, ...all])}
+          onComplete={(rows) => setLaunches((all) => [...rows, ...all.filter((l) => !rows.some((r) => r.id === l.id))])}
         />
       )}
     </>

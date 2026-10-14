@@ -1,8 +1,13 @@
 "use client";
 
+import { useState, type ChangeEvent } from "react";
+import { api } from "@/lib/api";
 import { BASE_FIELDS, CHAIN, DRAFT_KEY, FIELD_META, type Draft, type DraftKey, type ExtraField, type Launchpad } from "@/lib/data";
+import { cn } from "@/lib/format";
 import { ImageIcon } from "../icons";
-import { FloatField } from "../ui";
+import { useToast } from "../toast";
+import { FloatField, Spinner } from "../ui";
+import { useWallet } from "../wallet/context";
 
 const DECIMAL_INPUTS: ExtraField[] = ["supply", "decimals", "devBuy", "creatorFeeBps", "vestingMonths"];
 
@@ -20,6 +25,27 @@ export function TokenForm({
 }) {
   const chain = CHAIN[pad.chain];
   const extra = pad.fields.filter((f) => !BASE_FIELDS.includes(f)) as ExtraField[];
+  const { signer } = useWallet();
+  const toast = useToast();
+  const [uploading, setUploading] = useState(false);
+
+  /** Pins the picked file to IPFS and uses its gateway URL as the token image. */
+  const upload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !signer) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const pinned = await api<{ url: string }>("/api/upload", { form, token: await signer.getAccessToken() });
+      onChange({ imageUrl: pinned.url });
+    } catch (err) {
+      toast({ tone: "error", title: "Image upload failed", description: err instanceof Error ? err.message : undefined });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -58,9 +84,21 @@ export function TokenForm({
             <ImageIcon size={20} />
           )}
         </div>
-        <FloatField label="Image URL" error={errors.imageUrl} hint="Square PNG or JPG, 512×512 or larger." className="flex-1">
+        <FloatField
+          label="Image URL"
+          error={errors.imageUrl}
+          hint={signer ? "Square PNG, JPG, GIF or WebP, 512×512 or larger, up to 5 MB. Upload pins it to IPFS." : "Square PNG or JPG, 512×512 or larger."}
+          className="flex-1"
+        >
           <input value={draft.imageUrl} placeholder="https://…/logo.png" onChange={(e) => onChange({ imageUrl: e.target.value })} />
         </FloatField>
+        {signer && (
+          <label className={cn("pill mt-3 shrink-0 cursor-pointer !h-9 text-[12.5px]", uploading && "pointer-events-none opacity-60")}>
+            {uploading ? <Spinner size={12} /> : <ImageIcon size={14} />}
+            {uploading ? "Pinning…" : "Upload"}
+            <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="sr-only" onChange={upload} />
+          </label>
+        )}
       </div>
 
       {extra.length > 0 && (

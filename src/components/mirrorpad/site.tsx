@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
+import { PRIVY_APP_ID } from "@/lib/env";
 import { cn, shortAddr } from "@/lib/format";
 import { ArrowRight, Check, ChevronDown, Grid, Help, Layers, Logo, Rocket, Sparkles, Wallet } from "../icons";
 import { LifeCanvas } from "../life-canvas";
@@ -97,13 +98,18 @@ const FAQS: [string, string][] = [
     `A launchpad aggregator. Write your token metadata once, then deploy it through any of ${LAUNCHPADS.length} venues on Robinhood, Solana, Base or BNB Chain — or mirror it across all four in one run.`,
   ],
   ["Is a mirror a bridged token?", "No. Each chain gets its own contract and its own liquidity. Mirrors share a name, symbol, description and image — supply is not shared."],
-  ["How many times do I sign?", "Once per chain in the run. A single-chain launch is one signature; a four-chain mirror is four."],
+  ["How many times do I sign?", "At least once per chain in the run. Some venues add a step: Four.meme asks for a login signature, and Bags has a fee-share config transaction before the launch."],
   [
     "Why do some launches show “In review”?",
     "Some venues, like Robinhood Listings, review submissions before they go live. Those launches are queued as pending instead of trading at once.",
   ],
   ["Are the fees live quotes?", "No. Fees, curve parameters and graduation thresholds are editable defaults, not live quotes from each venue. Check the venue before you rely on them."],
-  ["Does anything hit mainnet?", "Not in this demo. Every run is simulated end to end — no real transactions are broadcast."],
+  [
+    "Does anything hit mainnet?",
+    PRIVY_APP_ID
+      ? "Yes. Once you sign in, every launch is a real mainnet transaction signed by your own wallet. Review venues and hand-off venues (Believe, Virtuals) don't deploy anything from here."
+      : "Not in this demo build. Without a wallet provider configured, every run is simulated end to end.",
+  ],
 ];
 
 export function Faq() {
@@ -230,7 +236,7 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 md:flex-row md:items-center md:justify-between">
           <p className="max-w-[70ch] text-[13px] text-mute">
-            A launchpad aggregator demo. Mirrors are independent deployments, not bridged tokens. No real transactions are broadcast.
+            A launchpad aggregator. Mirrors are independent deployments, not bridged tokens.{PRIVY_APP_ID ? " Launches are real mainnet transactions signed by your wallet." : " This build is a demo: no real transactions are broadcast."}
           </p>
           <p className="shrink-0 text-[13px] text-mute">© {new Date().getFullYear()} MirrorPad</p>
         </div>
