@@ -1,4 +1,4 @@
-import { confirmSignature, fromBase58, fromBase64, newMintSigner, sendAndConfirm, signWithMint, toBase64, txSignature } from "../solana";
+import { fromBase58, fromBase64, newMintSigner, sendAndConfirm, signWithMint } from "../solana";
 import { solanaSigner, tgUrl, xUrl, type Adapter, type LegCtx } from "./types";
 
 const SIGN = { id: "sign", label: "Sign transaction", detail: "Approve in your wallet" };
@@ -72,37 +72,5 @@ export const bags: Adapter = {
     ctx.step("submit");
     const tx = await sendAndConfirm(signed);
     return { status: "success", creator: sol.address, mint: info.tokenMint, tx };
-  },
-};
-
-/** Jupiter Studio: Jupiter builds the DBC pool tx and hosts the metadata; it also broadcasts. */
-export const jupiter: Adapter = {
-  steps: () => [
-    { id: "build", label: "Build pool transaction", detail: "Meteora DBC · USDC curve · LP locked" },
-    SIGN,
-    { id: "submit", label: "Submit through Jupiter", detail: "Jupiter Studio broadcasts and indexes it" },
-  ],
-  run: async (ctx) => {
-    const sol = solanaSigner(ctx);
-    const d = ctx.draft;
-    ctx.step("build");
-    const created = await ctx.call<{ transaction: string; mint: string }>("/api/venues/jupiter", {
-      step: "create",
-      creator: sol.address,
-      name: d.name,
-      symbol: d.symbol,
-      description: d.description,
-      image: ctx.meta.imageUri,
-      website: d.website,
-      twitter: xUrl(d.twitter),
-      telegram: tgUrl(d.telegram),
-      migrationMarketCap: ctx.pad.graduationUsd ?? 75_000,
-    });
-    ctx.step("sign");
-    const signed = await sol.signTransaction(fromBase64(created.transaction));
-    ctx.step("submit");
-    await ctx.call("/api/venues/jupiter", { step: "submit", transaction: toBase64(signed), owner: sol.address, content: d.description });
-    const tx = await confirmSignature(txSignature(signed));
-    return { status: "success", creator: sol.address, mint: created.mint, tx };
   },
 };

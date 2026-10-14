@@ -1,5 +1,5 @@
 /*
- * The MirrorPad catalogue: four chains, fourteen launchpads, the per-venue form fields,
+ * The MirrorPad catalogue: four chains, thirteen launchpads, the per-venue form fields,
  * reference prices and the seeded activity feed. Every number here is an editable default,
  * not a live quote from the venue.
  */
@@ -271,25 +271,6 @@ export const LAUNCHPADS: Launchpad[] = [
     features: ["Custom curve", "Quote asset choice", "Raydium native", "Vesting support"],
     fields: [...BASE_FIELDS, "website", "twitter", "telegram"],
     liquidityDest: "Raydium CPMM",
-  },
-  {
-    id: "jupiter-studio",
-    name: "Jupiter Studio",
-    chain: "solana",
-    tagline: "Locked supply, routed everywhere",
-    description:
-      "Creator-first launches with locked team allocations and vesting, wired into Jupiter's router from the first trade for immediate aggregator reach.",
-    status: "live",
-    integration: "onchain",
-    url: "https://jup.ag/studio",
-    tradeFeeBps: 100,
-    createFee: 0.01,
-    graduationUsd: 75e3,
-    curve: "bonding",
-    creatorRevBps: 50,
-    features: ["Supply locks", "Linear vesting", "Router reach", "Anti-sniper"],
-    fields: [...BASE_FIELDS, "website", "twitter", "telegram"],
-    liquidityDest: "Meteora DBC",
   },
   {
     id: "zora",

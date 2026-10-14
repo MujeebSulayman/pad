@@ -15,7 +15,6 @@ export const PINATA_JWT = clean(process.env.PINATA_JWT);
 /** Public gateway for pinned files, e.g. https://<name>.mypinata.cloud. Defaults to ipfs.io. */
 export const IPFS_GATEWAY = (clean(process.env.PINATA_GATEWAY) || "https://ipfs.io").replace(/\/$/, "");
 export const BAGS_API_KEY = clean(process.env.BAGS_API_KEY);
-export const JUPITER_API_KEY = clean(process.env.JUPITER_API_KEY);
 export const ZORA_API_KEY = clean(process.env.ZORA_API_KEY);
 
 /** Thrown by route helpers; turned into a JSON error response. */

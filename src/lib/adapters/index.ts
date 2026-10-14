@@ -1,7 +1,7 @@
 import { CHAIN, type Launchpad } from "../data";
 import { clanker, flaunch, fourmeme, pancakeswap, robinhoodMint, zora } from "./evm";
 import { believe, launchlab, review, virtuals } from "./offchain";
-import { bags, jupiter, pumpfun } from "./solana";
+import { bags, pumpfun } from "./solana";
 import type { Adapter, StepDef } from "./types";
 
 export type { Adapter, LegCtx, LegResult, Meta, StepDef } from "./types";
@@ -14,7 +14,6 @@ export const ADAPTERS: Record<string, Adapter> = {
   bags,
   believe,
   "raydium-launchlab": launchlab,
-  "jupiter-studio": jupiter,
   zora,
   clanker,
   flaunch,
