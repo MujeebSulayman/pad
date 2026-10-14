@@ -8,12 +8,17 @@
     "start": "next start"
   },
   "dependencies": {
+    "@flaunch/sdk": "^0.17.1",
+    "@neondatabase/serverless": "^1.2.0",
     "@privy-io/react-auth": "^3.49.0",
     "@solana-program/memo": "^0.10.0",
     "@solana-program/system": "^0.10.0",
     "@solana-program/token": "^0.9.0",
     "@solana/kit": "^5.5.1",
+    "clanker-sdk": "^4.2.19",
+    "jose": "^6.2.12",
     "next": "^15.5.27",
+    "postgres": "^3.4.9",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "viem": "^2.56.5"
