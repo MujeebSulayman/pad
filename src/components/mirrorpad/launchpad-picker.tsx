@@ -11,7 +11,7 @@ export type Sort = "default" | "cheapest" | "creator";
 
 export const STATUS_TONE: Record<PadStatus, Tone> = { live: "green", beta: "blue", waitlist: "amber", approval: "purple" };
 
-const SORTS: { id: Sort; label: string }[] = [
+export const SORTS: { id: Sort; label: string }[] = [
   { id: "default", label: "Recommended" },
   { id: "cheapest", label: "Lowest fees" },
   { id: "creator", label: "Best creator split" },

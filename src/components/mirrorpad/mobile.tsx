@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { CHAIN, CHAINS, LAUNCHPADS, STATUS_LABEL, padsOn } from "@/lib/data";
 import { cn, fmtBps, fmtUsd, shortAddr } from "@/lib/format";
 import { costLegs, totalUsd } from "@/lib/launch";
-import { Alert, ChainMark, Check, ChevronRight, Grid, Layers, Logo, Rocket, Wallet } from "../icons";
-import { ThemeToggle } from "../theme";
-import { Badge, Button, Notice } from "../ui";
+import { Alert, ChainMark, Check, ChevronRight, Grid, Layers, Logo, Receipt, Rocket, Wallet } from "../icons";
+import { ThemeButton } from "../theme";
+import { Badge, Button, Notice, Row } from "../ui";
 import { ChainPicker } from "./chain-picker";
 import { ActivityList } from "./launches";
 import { LaunchpadPicker } from "./launchpad-picker";
@@ -18,42 +18,55 @@ import { useDrop } from "./use-drop";
 
 type Tab = "launch" | "venues" | "activity";
 
-const TABS: { id: Tab; label: string; icon: typeof Rocket }[] = [
-  { id: "launch", label: "Launch", icon: Rocket },
-  { id: "venues", label: "Venues", icon: Grid },
-  { id: "activity", label: "Activity", icon: Layers },
-];
-
 const STEPS = ["Chain", "Venue", "Token", "Mirror"];
 
+/** Floating glass tab bar, with Launch as the accent button in the middle. */
 function TabBar({ tab, onChange, badge }: { tab: Tab; onChange: (t: Tab) => void; badge: number }) {
   const drop = useDrop("tab", tab);
+  const item = (id: Tab, label: string, Icon: typeof Grid, extra?: ReactNode) => (
+    <button onClick={() => onChange(id)} aria-current={id === tab ? "page" : undefined}>
+      <span className="relative">
+        <Icon size={20} strokeWidth={id === tab ? 1.9 : 1.5} />
+        {extra}
+      </span>
+      <span className="font-medium">{label}</span>
+    </button>
+  );
   return (
     <nav className="tabbar lgx" id="tabbar" aria-label="Sections" ref={drop.host}>
       <span className="drop" ref={drop.drop} aria-hidden />
-      {TABS.map((t) => (
-        <button key={t.id} onClick={() => onChange(t.id)} aria-current={t.id === tab ? "page" : undefined}>
-          <span className="relative">
-            <t.icon size={20} strokeWidth={t.id === tab ? 1.9 : 1.5} />
-            {t.id === "activity" && !!badge && (
-              <span className="absolute -right-2.5 -top-1.5 grid h-[16px] min-w-[16px] place-items-center rounded-full [background:var(--g-accent)] px-1 font-mono text-[9px] font-bold text-[var(--accent-ink)]">
-                {badge}
-              </span>
-            )}
+      {item("venues", "Venues", Grid)}
+      <button
+        onClick={() => onChange("launch")}
+        aria-label="Launch"
+        aria-current={tab === "launch" ? "page" : undefined}
+        className="mx-1 !grid h-[52px] w-[52px] !flex-none place-items-center !rounded-[20px] !p-0 !text-[var(--accent-ink)]"
+        style={{ background: "var(--g-accent)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.5), 0 10px 24px -10px rgba(150,200,40,.6)" }}
+      >
+        <Rocket size={22} strokeWidth={1.9} />
+      </button>
+      {item(
+        "activity",
+        "Activity",
+        Layers,
+        !!badge && (
+          <span className="absolute -right-2.5 -top-1.5 grid h-[16px] min-w-[16px] place-items-center rounded-full [background:var(--g-accent)] px-1 font-mono text-[9px] font-bold text-[var(--accent-ink)]">
+            {badge}
           </span>
-          <span className="font-medium">{t.label}</span>
-        </button>
-      ))}
+        ),
+      )}
     </nav>
   );
 }
 
-function Heading({ title, children }: { title: string; children: React.ReactNode }) {
+/** Page intro: mono kicker, display title, a line of context. */
+function Intro({ kicker, title, children }: { kicker: string; title: ReactNode; children: ReactNode }) {
   return (
-    <>
-      <h2 className="text-[28px] leading-tight">{title}</h2>
-      <p className="mb-5 mt-1.5 text-[14px] leading-[20px] text-dim">{children}</p>
-    </>
+    <div className="mb-6">
+      <p className="eyebrow">{kicker}</p>
+      <h1 className="display mt-4 text-[clamp(32px,9vw,44px)]">{title}</h1>
+      <p className="mt-3 text-[15px] leading-[22px] text-dim">{children}</p>
+    </div>
   );
 }
 
@@ -70,32 +83,34 @@ export function MobileView(p: ViewProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step, tab]);
 
+  const kicker = `Step ${String(step + 1).padStart(2, "0")} / ${String(STEPS.length).padStart(2, "0")}`;
+
   return (
     <div className="flex min-h-[100dvh] flex-col lg:hidden">
       <header className="topbar lgx">
-        <Logo size={28} />
+        <Logo size={26} />
         <span className="text-[16px] font-semibold tracking-[-0.02em]">MirrorPad</span>
-        <div className="ml-auto flex items-center gap-1.5">
-          <ThemeToggle />
+        <div className="ml-auto flex items-center gap-1">
+          <ThemeButton />
           {p.connected ? (
             <button onClick={p.onDisconnect} className="btn btn-sm btn-ghost !h-10 !gap-1.5 !px-3" title="Disconnect">
               <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-good text-[var(--accent-ink)]">
                 <Check size={10} strokeWidth={2.4} />
               </span>
-              <span className="font-mono text-[11.5px]">{shortAddr(p.address, 4, 4)}</span>
+              <span className="font-mono text-[11.5px]">{p.address ? shortAddr(p.address, 4, 4) : "No wallet"}</span>
             </button>
           ) : (
-            <Button variant="primary" size="sm" className="!h-10" onClick={p.onConnect}>
+            <Button variant="secondary" size="sm" className="!h-10" prefix={<Wallet size={15} />} loading={!p.walletReady} onClick={p.onConnect}>
               Connect
             </Button>
           )}
         </div>
       </header>
 
-      <main className="flex-1 px-4 pb-[calc(var(--mp-nav-h)+var(--mp-action-h)+28px)] pt-[calc(env(safe-area-inset-top,0px)+88px)]">
+      <main className="flex-1 px-4 pb-[calc(var(--mp-nav-h)+var(--mp-action-h)+28px)] pt-[calc(env(safe-area-inset-top,0px)+92px)]">
         {tab === "launch" && (
           <>
-            <ol className="mb-6 flex items-center gap-2">
+            <ol className="mb-8 flex items-center gap-2">
               {STEPS.map((s, i) => {
                 const current = i === step;
                 const complete = i === 2 ? ready : i < step;
@@ -108,7 +123,9 @@ export function MobileView(p: ViewProps) {
                           current ? "bg-fg" : complete ? "bg-accent shadow-[0_0_10px_var(--accent)]" : "bg-line2",
                         )}
                       />
-                      <span className={cn("font-mono text-[10.5px] uppercase tracking-[0.1em]", current ? "text-fg" : "text-mute")}>{s}</span>
+                      <span className={cn("font-mono text-[10.5px] uppercase tracking-[0.1em]", current ? "text-fg" : complete ? "text-accent" : "text-mute")}>
+                        {String(i + 1).padStart(2, "0")} {s}
+                      </span>
                     </button>
                   </li>
                 );
@@ -117,16 +134,25 @@ export function MobileView(p: ViewProps) {
 
             {step === 0 && (
               <section className="fade-in">
-                <Heading title="Pick a primary chain">{p.chainInfo.note}</Heading>
+                <Intro
+                  kicker={kicker}
+                  title={
+                    <>
+                      Launch once. <span className="text-gradient">Mirror everywhere.</span>
+                    </>
+                  }
+                >
+                  Start with a primary chain. {p.chainInfo.note}
+                </Intro>
                 <ChainPicker value={p.chain} onChange={p.onSelectChain} />
               </section>
             )}
 
             {step === 1 && (
               <section className="fade-in">
-                <Heading title="Pick a launchpad">
+                <Intro kicker={kicker} title="Pick a launchpad">
                   {p.scope === "chain" ? `${padsOn(p.chain).length} venues on ${p.chainInfo.name}.` : `Comparing all ${LAUNCHPADS.length} venues.`}
-                </Heading>
+                </Intro>
                 <LaunchpadPicker
                   chain={p.chain}
                   value={p.padId}
@@ -141,9 +167,11 @@ export function MobileView(p: ViewProps) {
 
             {step === 2 && (
               <section className="fade-in">
-                <Heading title="Configure the token">This metadata is what every mirror copies.</Heading>
+                <Intro kicker={kicker} title="Configure the token">
+                  This metadata is what every mirror copies.
+                </Intro>
                 <TokenPreview pad={p.pad} draft={p.draft} mirrorCount={legs.length - 1} className="mb-4" />
-                <div className="glass rounded-[28px] p-5" data-lg="surface" data-lg-r="28" data-lg-tint="card">
+                <div className="card p-5">
                   <TokenForm pad={p.pad} draft={p.draft} errors={p.errors} onChange={p.onDraftChange} />
                 </div>
               </section>
@@ -151,29 +179,35 @@ export function MobileView(p: ViewProps) {
 
             {step === 3 && (
               <section className="fade-in">
-                <Heading title="Mirror to other chains">Optional. Launch on {p.chainInfo.shortName} alone, or deploy the same token across several chains in one run.</Heading>
+                <Intro kicker={kicker} title="Mirror to other chains">
+                  Optional. Launch on {p.chainInfo.shortName} alone, or deploy the same token across several chains in one run.
+                </Intro>
                 <MirrorPicker primaryChain={p.chain} mirrors={p.mirrors} onChange={p.onMirrorsChange} />
-                <div className="glass mt-4 rounded-[26px] p-5" data-lg="surface" data-lg-r="26" data-lg-tint="card">
-                  <h3 className="label !text-fg">Launch cost</h3>
-                  <div className="mt-2 divide-y divide-[var(--line)]">
+                <div className="glass mt-4 rounded-[26px]" data-lg="surface" data-lg-r="26" data-lg-tint="card">
+                  <div className="flex items-center justify-between border-b border-dashed border-line2 px-5 py-4">
+                    <span className="font-mono text-[11.5px] uppercase tracking-[0.16em] text-dim">Launch receipt</span>
+                    <Receipt size={17} className="text-accent" />
+                  </div>
+                  <div className="px-5 py-3">
                     {legs.map((l) => (
-                      <div key={l.pad.id} className="flex items-center justify-between gap-3 py-2.5">
-                        <span className="flex min-w-0 items-center gap-2 text-[13.5px] text-dim">
-                          <span style={{ color: l.chain.accent }}>
-                            <ChainMark chain={l.chain.mark} size={14} />
+                      <Row
+                        key={l.pad.id}
+                        label={
+                          <span className="inline-flex min-w-0 items-center gap-1.5">
+                            <span style={{ color: l.chain.accent }}>
+                              <ChainMark chain={l.chain.mark} size={12} />
+                            </span>
+                            <span className="truncate">{l.pad.name}</span>
+                            {l.mirror && <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-mute">mirror</span>}
                           </span>
-                          <span className="truncate">{l.pad.name}</span>
-                          {l.mirror && <Badge tone="purple">mirror</Badge>}
-                        </span>
-                        <span className="shrink-0 font-mono text-[12.5px] tabular-nums">
-                          {l.native.toFixed(4)} {l.chain.nativeToken}
-                        </span>
-                      </div>
+                        }
+                        value={`${l.native.toFixed(4)} ${l.chain.nativeToken}`}
+                      />
                     ))}
                   </div>
-                  <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
-                    <span className="text-[13.5px] font-semibold">{multi ? `Total across ${legs.length} chains` : "Total"}</span>
-                    <span className="font-mono text-[15px] font-semibold tabular-nums">${usd.toFixed(2)}</span>
+                  <div className="flex items-baseline justify-between border-t border-dashed border-line2 px-5 py-4">
+                    <span className="font-mono text-[11.5px] uppercase tracking-[0.14em] text-dim">{multi ? `Total · ${legs.length} chains` : "Total"}</span>
+                    <span className="font-mono text-[18px] font-semibold tabular-nums text-accent">${usd.toFixed(2)}</span>
                   </div>
                 </div>
                 {p.pad.status !== "live" && (
@@ -190,9 +224,16 @@ export function MobileView(p: ViewProps) {
 
         {tab === "venues" && (
           <section className="fade-in">
-            <Heading title="Venues">
-              All {LAUNCHPADS.length} launchpads across {CHAINS.length} chains.
-            </Heading>
+            <Intro
+              kicker="The venues"
+              title={
+                <>
+                  Every fee, <span className="text-mute">side by side.</span>
+                </>
+              }
+            >
+              All {LAUNCHPADS.length} launchpads across {CHAINS.length} chains. Tap one to make it your venue.
+            </Intro>
             <div className="flex flex-col gap-2.5">
               {LAUNCHPADS.map((v) => {
                 const c = CHAIN[v.chain];
@@ -207,10 +248,10 @@ export function MobileView(p: ViewProps) {
                     className="tile flex items-center gap-3 rounded-[22px] p-3.5 text-left"
                   >
                     <span
-                      className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] text-[16px] font-semibold shadow-[var(--edge-sm)]"
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] shadow-[var(--edge-sm)]"
                       style={{ color: c.accent, background: `color-mix(in srgb, ${c.accent} 14%, var(--knob))` }}
                     >
-                      {v.name.slice(0, 1)}
+                      <ChainMark chain={c.mark} size={20} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -218,10 +259,7 @@ export function MobileView(p: ViewProps) {
                         <Badge tone={v.status === "live" ? "green" : "amber"}>{STATUS_LABEL[v.status]}</Badge>
                       </div>
                       <p className="mt-0.5 truncate text-[12.5px] text-dim">{v.tagline}</p>
-                      <p className="mt-1 flex items-center gap-1.5 font-mono text-[11px] text-mute">
-                        <span style={{ color: c.accent }}>
-                          <ChainMark chain={c.mark} size={11} />
-                        </span>
+                      <p className="mt-1 font-mono text-[11px] text-mute">
                         {c.shortName} · {fmtBps(v.tradeFeeBps)} fee · {v.graduationUsd ? fmtUsd(v.graduationUsd) : "no curve"}
                       </p>
                     </div>
@@ -235,7 +273,16 @@ export function MobileView(p: ViewProps) {
 
         {tab === "activity" && (
           <section className="fade-in">
-            <Heading title="Activity">Every deployment routed through this aggregator. Mirror legs are listed separately — each is its own contract.</Heading>
+            <Intro
+              kicker="Activity"
+              title={
+                <>
+                  Recent launches. <span className="text-mute">Each leg its own contract.</span>
+                </>
+              }
+            >
+              Every deployment routed through this aggregator. Mirror legs are listed separately.
+            </Intro>
             <ActivityList rows={p.launches} />
           </section>
         )}
@@ -244,7 +291,7 @@ export function MobileView(p: ViewProps) {
       {tab === "launch" && (
         <div role="region" aria-label="Launch summary and actions" className="actionbar lgx">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[11.5px] text-mute">
+            <p className="truncate font-mono text-[10.5px] uppercase tracking-[0.1em] text-mute">
               {multi ? `${legs.length} chains` : p.chainInfo.shortName} · {p.pad.name}
             </p>
             <p className="font-mono text-[15px] font-semibold tabular-nums">
@@ -269,7 +316,7 @@ export function MobileView(p: ViewProps) {
               </Button>
             )
           ) : (
-            <Button variant="primary" onClick={p.onConnect} prefix={<Wallet size={15} />} className="min-w-[150px]">
+            <Button variant="primary" onClick={p.onConnect} loading={!p.walletReady} prefix={<Wallet size={15} />} className="min-w-[150px]">
               Connect
             </Button>
           )}

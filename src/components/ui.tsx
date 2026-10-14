@@ -101,6 +101,51 @@ export function Field({
   );
 }
 
+/**
+ * A sunken well with its label floating inside (the input or textarea goes in as children).
+ * `prefix` is fixed text before the value; `corner` sits top-right (a counter, a unit).
+ */
+export function FloatField({
+  label,
+  required,
+  error,
+  hint,
+  prefix,
+  corner,
+  className,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  hint?: string;
+  prefix?: string;
+  corner?: ReactNode;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
+      <label className={cn("field", error && "is-invalid")}>
+        <span>
+          {label}
+          {required && <span className="ml-1 text-bad">*</span>}
+        </span>
+        {corner && <em>{corner}</em>}
+        {prefix ? (
+          <span className="field-row">
+            <b>{prefix}</b>
+            {children}
+          </span>
+        ) : (
+          children
+        )}
+      </label>
+      {error ? <p className="px-2 text-[12px] leading-4 text-bad">{error}</p> : hint ? <p className="px-2 text-[12px] leading-4 text-mute">{hint}</p> : null}
+    </div>
+  );
+}
+
 export function TextInput({ prefixText, invalid, className, ...rest }: InputHTMLAttributes<HTMLInputElement> & { prefixText?: string; invalid?: boolean }) {
   if (prefixText)
     return (

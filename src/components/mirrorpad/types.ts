@@ -1,4 +1,5 @@
 import type { Chain, ChainId, Draft, DraftKey, Launch, Launchpad, Mirrors } from "@/lib/data";
+import type { Balance } from "../wallet/use-balance";
 import type { Scope, Sort } from "./launchpad-picker";
 
 /** Everything the desktop and phone layouts render from; both share one state. */
@@ -12,8 +13,13 @@ export type ViewProps = {
   issues: string[];
   mirrors: Mirrors;
   launches: Launch[];
+  /** False while the wallet provider is still loading / restoring a session. */
+  walletReady: boolean;
   connected: boolean;
-  address: string;
+  /** Signing address on the primary chain; null if the user has no wallet of that kind. */
+  address: string | null;
+  /** Native balance of `address` on the primary chain (live, via the chain's RPC). */
+  balance: Balance;
   scope: Scope;
   sort: Sort;
   onScopeChange: (s: Scope) => void;

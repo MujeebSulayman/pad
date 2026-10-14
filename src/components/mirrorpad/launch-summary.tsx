@@ -3,54 +3,57 @@
 import { CHAIN, PRICES, STATUS_LABEL, type Draft, type Launchpad, type Mirrors } from "@/lib/data";
 import { cn, fmtBps, fmtUsd } from "@/lib/format";
 import { costLegs, devBuyOf, gasFor, totalUsd } from "@/lib/launch";
-import { Alert, Bolt, ChainMark, Rocket, Wallet } from "../icons";
+import { Alert, Bolt, ChainMark, Receipt, Rocket, Wallet } from "../icons";
 import { Badge, Button, Notice, Row, TokenAvatar } from "../ui";
+import type { Balance } from "../wallet/use-balance";
 
 /** The live preview of the token as the venue will show it. */
 export function TokenPreview({ pad, draft, mirrorCount = 0, className }: { pad: Launchpad; draft: Draft; mirrorCount?: number; className?: string }) {
   const chain = CHAIN[pad.chain];
   return (
-    <div className={cn("card overflow-hidden !rounded-[26px]", className)}>
-      <div
-        className="relative h-[76px]"
-        style={{ background: `radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, ${chain.accent} 38%, transparent), transparent 70%)` }}
-      >
-        <span className="absolute right-3.5 top-3.5 inline-flex items-center gap-1.5 rounded-full bg-[var(--knob)] px-2.5 py-1 text-[11.5px] font-semibold shadow-[var(--edge-sm)]">
-          <span style={{ color: chain.accent }}>
-            <ChainMark chain={chain.mark} size={12} />
-          </span>
-          {chain.shortName}
-        </span>
-      </div>
-      <div className="px-5 pb-5">
-        <div className="relative z-10 -mt-8">
-          <TokenAvatar imageUrl={draft.imageUrl} symbol={draft.symbol} className="h-[60px] w-[60px] rounded-[18px] text-[18px] font-medium ring-4 ring-[var(--bg)]/40" />
+    <div className={cn("card overflow-hidden !rounded-[26px] p-4", className)}>
+      <div className="flex items-center gap-3.5">
+        <div className="relative isolate shrink-0">
+          <span
+            aria-hidden
+            className="absolute -inset-3 -z-10 rounded-full blur-xl transition-colors duration-500"
+            style={{ background: `color-mix(in srgb, ${chain.accent} 35%, transparent)` }}
+          />
+          <TokenAvatar imageUrl={draft.imageUrl} symbol={draft.symbol} className="h-14 w-14 rounded-[18px] text-[16px] font-medium" />
         </div>
-        <div className="mt-3">
+        <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <h3 className="truncate text-[17px] font-semibold tracking-[-0.02em]">{draft.name || "Untitled token"}</h3>
             <span className="shrink-0 font-mono text-[12px] text-mute">${draft.symbol || "———"}</span>
           </div>
-          <p className="mt-1.5 line-clamp-2 min-h-[36px] text-[13px] leading-[18px] text-dim">{draft.description || "No description yet."}</p>
+          <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[11px] text-mute">
+            <span style={{ color: chain.accent }}>
+              <ChainMark chain={chain.mark} size={11} />
+            </span>
+            {chain.shortName} · {pad.name}
+          </p>
         </div>
-        <div className="mt-3.5 flex flex-wrap items-center gap-1.5 border-t border-line pt-3.5">
-          <Badge>{pad.name}</Badge>
-          <Badge tone={pad.status === "live" ? "green" : "amber"}>{STATUS_LABEL[pad.status]}</Badge>
-          <Badge tone="blue">{pad.curve}</Badge>
-          {mirrorCount > 0 && <Badge tone="purple">+{mirrorCount} mirrors</Badge>}
-        </div>
+      </div>
+      <p className="mt-3.5 line-clamp-2 min-h-[36px] text-[13px] leading-[18px] text-dim">{draft.description || "No description yet."}</p>
+      <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+        <Badge tone={pad.status === "live" ? "green" : "amber"} dot={pad.status === "live"}>
+          {STATUS_LABEL[pad.status]}
+        </Badge>
+        <Badge tone="blue">{pad.curve}</Badge>
+        {mirrorCount > 0 && <Badge tone="purple">+{mirrorCount} mirrors</Badge>}
       </div>
     </div>
   );
 }
 
-/** Desktop aside: preview, cost breakdown, blockers and the launch button. */
+/** Desktop aside: preview, the run as a receipt, blockers and the launch button. */
 export function LaunchSummary({
   pad,
   draft,
   issues,
   mirrors,
   connected,
+  balance,
   onConnect,
   onLaunch,
 }: {
@@ -59,6 +62,8 @@ export function LaunchSummary({
   issues: string[];
   mirrors: Mirrors;
   connected: boolean;
+  /** Live wallet balance on the primary chain; omitted for the simulated wallet. */
+  balance?: Balance;
   onConnect: () => void;
   onLaunch: () => void;
 }) {
@@ -76,14 +81,13 @@ export function LaunchSummary({
     <div className="flex flex-col gap-3.5">
       <TokenPreview pad={pad} draft={draft} mirrorCount={legs.length - 1} />
 
-      <div className="glass rounded-[26px] p-5" data-lg="surface" data-lg-r="26" data-lg-tint="card">
-        <div className="flex items-center justify-between">
-          <h4 className="label !text-fg">Launch cost</h4>
-          <span className="font-mono text-[11px] text-mute">
-            1 {chain.nativeToken} ≈ ${price.toLocaleString()}
-          </span>
+      <div className="glass rounded-[28px]" data-lg="surface" data-lg-r="28" data-lg-tint="card">
+        <div className="flex items-center justify-between border-b border-dashed border-line2 px-5 py-4">
+          <span className="font-mono text-[11.5px] uppercase tracking-[0.16em] text-dim">Launch receipt</span>
+          <Receipt size={17} className="text-accent" />
         </div>
-        <div className="mt-2.5">
+
+        <div className="px-5 py-3.5">
           {multi ? (
             legs.map((l) => (
               <Row
@@ -107,21 +111,41 @@ export function LaunchSummary({
               <Row label="Network gas (est.)" value={`${gas} ${chain.nativeToken}`} />
             </>
           )}
-          <div className="mt-1.5 border-t border-line pt-1.5">
-            <Row
-              strong
-              label={multi ? `Total across ${legs.length} chains` : "Total"}
-              value={multi ? `$${usd.toFixed(2)}` : `${total.toFixed(5)} ${chain.nativeToken} · $${(total * price).toFixed(2)}`}
-            />
+
+          <div className="mt-3 border-t border-line pt-2.5">
+            {multi && <p className="label pb-1">Primary venue · {pad.name}</p>}
+            <Row label="Trading fee" value={fmtBps(pad.tradeFeeBps)} />
+            <Row label="Your fee share" value={pad.creatorRevBps ? fmtBps(pad.creatorRevBps) : "None"} muted={!pad.creatorRevBps} />
+            <Row label="Graduates at" value={pad.graduationUsd ? fmtUsd(pad.graduationUsd) : "No curve"} muted={!pad.graduationUsd} />
+            <Row label="Liquidity lands in" value={pad.liquidityDest} />
+            {connected && balance && (balance.value !== null || balance.loading || balance.error) && (
+              <Row
+                label="Your balance"
+                muted={balance.value === null}
+                value={
+                  balance.value !== null ? (
+                    <span className={balance.value < total ? "text-t-amber" : undefined}>
+                      {balance.value.toFixed(4)} {chain.nativeToken}
+                    </span>
+                  ) : balance.error ? (
+                    "RPC unavailable"
+                  ) : (
+                    "…"
+                  )
+                }
+              />
+            )}
           </div>
         </div>
 
-        <div className="mt-3 border-t border-line pt-2.5">
-          {multi && <p className="label pb-1">Primary venue · {pad.name}</p>}
-          <Row label="Trading fee" value={fmtBps(pad.tradeFeeBps)} />
-          <Row label="Your fee share" value={pad.creatorRevBps ? fmtBps(pad.creatorRevBps) : "None"} muted={!pad.creatorRevBps} />
-          <Row label="Graduates at" value={pad.graduationUsd ? fmtUsd(pad.graduationUsd) : "No curve"} muted={!pad.graduationUsd} />
-          <Row label="Liquidity lands in" value={pad.liquidityDest} />
+        <div className="flex items-baseline justify-between gap-3 border-t border-dashed border-line2 px-5 py-4">
+          <span className="font-mono text-[11.5px] uppercase tracking-[0.14em] text-dim">{multi ? `Total · ${legs.length} chains` : "Total"}</span>
+          <span className="text-right">
+            <span className="block font-mono text-[20px] font-semibold tabular-nums text-accent">${usd.toFixed(2)}</span>
+            <span className="block font-mono text-[11px] text-mute">
+              {multi ? `${legs.length} signatures` : `${total.toFixed(5)} ${chain.nativeToken}`} · 1 {chain.nativeToken} ≈ ${price.toLocaleString()}
+            </span>
+          </span>
         </div>
       </div>
 

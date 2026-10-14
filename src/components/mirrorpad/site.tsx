@@ -1,0 +1,244 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { CHAINS, LAUNCHPADS } from "@/lib/data";
+import { cn, shortAddr } from "@/lib/format";
+import { ArrowRight, Check, ChevronDown, Grid, Help, Layers, Logo, Rocket, Sparkles, Wallet } from "../icons";
+import { LifeCanvas } from "../life-canvas";
+import { Reveal } from "../reveal";
+import { ThemeButton } from "../theme";
+import { Button } from "../ui";
+import { Section } from "./section";
+import type { ViewProps } from "./types";
+import { useDrop } from "./use-drop";
+
+const NAV = [
+  { id: "studio", label: "Studio", icon: Rocket },
+  { id: "venues", label: "Venues", icon: Grid },
+  { id: "how", label: "How it works", icon: Sparkles },
+  { id: "activity", label: "Activity", icon: Layers },
+  { id: "faq", label: "FAQ", icon: Help },
+];
+
+/** The nav section whose top most recently crossed the upper third of the viewport. */
+function useScrollSpy(ids: string[]) {
+  const [current, setCurrent] = useState<string>("");
+  useEffect(() => {
+    const onScroll = () => {
+      const line = window.innerHeight / 3;
+      let hit = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) hit = id;
+      }
+      setCurrent(hit);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return current;
+}
+
+/** Desktop: the floating liquid-glass bar, its highlight following the section you're reading. */
+export function DesktopHeader({
+  walletReady,
+  connected,
+  address,
+  onConnect,
+  onDisconnect,
+}: Pick<ViewProps, "walletReady" | "connected" | "address" | "onConnect" | "onDisconnect">) {
+  const current = useScrollSpy(NAV.map((n) => n.id));
+  const drop = useDrop("nav", current);
+
+  return (
+    <header className="topnav nav lgx" id="nav">
+      <a href="#top" aria-label="MirrorPad home" className="flex shrink-0 items-center gap-2.5 transition-transform duration-700 [transition-timing-function:var(--ease-spring)] hover:scale-105">
+        <Logo size={28} />
+        <span className="text-[16px] font-semibold tracking-[-0.02em]">MirrorPad</span>
+      </a>
+      <nav className="nav-links" aria-label="Main" ref={drop.host} onPointerLeave={drop.leave}>
+        <span className="drop" ref={drop.drop} aria-hidden />
+        {NAV.map((n) => (
+          <a key={n.id} href={`#${n.id}`} aria-current={current === n.id ? "page" : undefined} onPointerEnter={drop.enter}>
+            <n.icon size={16} strokeWidth={current === n.id ? 1.9 : 1.5} />
+            {n.label}
+          </a>
+        ))}
+      </nav>
+      <div className="flex shrink-0 items-center gap-1.5">
+        <ThemeButton />
+        {connected ? (
+          <button onClick={onDisconnect} className="btn btn-sm btn-ghost !h-10 !gap-2 !pl-2.5" title="Disconnect">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-good text-[var(--accent-ink)]">
+              <Check size={11} strokeWidth={2.4} />
+            </span>
+            <span className="font-mono text-[12.5px]">{address ? shortAddr(address, 5, 4) : "No wallet on this chain"}</span>
+            <ChevronDown size={13} className="text-mute" />
+          </button>
+        ) : (
+          <Button variant="secondary" size="sm" className="!h-10" prefix={<Wallet size={15} />} loading={!walletReady} onClick={onConnect}>
+            Connect
+          </Button>
+        )}
+        <a href="#studio" className="btn btn-sm btn-accent !h-10">
+          <Rocket size={15} strokeWidth={1.9} />
+          Launch
+        </a>
+      </div>
+    </header>
+  );
+}
+
+const FAQS: [string, string][] = [
+  [
+    "What is MirrorPad?",
+    `A launchpad aggregator. Write your token metadata once, then deploy it through any of ${LAUNCHPADS.length} venues on Robinhood, Solana, Base or BNB Chain — or mirror it across all four in one run.`,
+  ],
+  ["Is a mirror a bridged token?", "No. Each chain gets its own contract and its own liquidity. Mirrors share a name, symbol, description and image — supply is not shared."],
+  ["How many times do I sign?", "Once per chain in the run. A single-chain launch is one signature; a four-chain mirror is four."],
+  [
+    "Why do some launches show “In review”?",
+    "Some venues, like Robinhood Listings, review submissions before they go live. Those launches are queued as pending instead of trading at once.",
+  ],
+  ["Are the fees live quotes?", "No. Fees, curve parameters and graduation thresholds are editable defaults, not live quotes from each venue. Check the venue before you rely on them."],
+  ["Does anything hit mainnet?", "Not in this demo. Every run is simulated end to end — no real transactions are broadcast."],
+];
+
+export function Faq() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <Section id="faq">
+      <Reveal className="mb-10">
+        <p className="eyebrow">Questions</p>
+        <h2 className="h2 mt-3">Before you sign anything.</h2>
+      </Reveal>
+      <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+        {FAQS.map(([q, a], i) => {
+          const on = open === i;
+          return (
+            <div key={q} className={cn("card overflow-hidden transition-colors duration-500", on && "!bg-fg/[.07]")}>
+              <button type="button" className="flex w-full items-center gap-4 px-5 py-4 text-left sm:px-6 sm:py-5" onClick={() => setOpen(on ? null : i)} aria-expanded={on}>
+                <span className={cn("font-mono text-[12px] transition-colors", on ? "text-accent" : "text-mute")}>{String(i + 1).padStart(2, "0")}</span>
+                <span className="flex-1 text-[16px] font-semibold tracking-[-0.015em]">{q}</span>
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-[12px] transition-all duration-500 [transition-timing-function:var(--ease-spring)]",
+                    on ? "rotate-180 bg-accent text-[var(--accent-ink)]" : "bg-fg/8",
+                  )}
+                >
+                  <ChevronDown size={16} strokeWidth={2.2} />
+                </span>
+              </button>
+              <div className="grid transition-[grid-template-rows] duration-300 ease-out" style={{ gridTemplateRows: on ? "1fr" : "0fr" }}>
+                <div className="overflow-hidden">
+                  <p className="pb-5 pl-[52px] pr-5 text-[15px] leading-relaxed text-dim sm:pr-6">{a}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
+
+export function Closing() {
+  return (
+    <Section>
+      <Reveal variant="scale">
+        <div className="glass relative grid items-center gap-10 overflow-hidden rounded-[38px] px-6 py-14 sm:px-12 md:grid-cols-[1.2fr_1fr] md:py-16" data-lg="surface" data-lg-r="38" data-lg-tint="card">
+          <div>
+            <p className="eyebrow">Start here</p>
+            <h2 className="display mt-4 text-[clamp(36px,5vw,68px)]">
+              Write it once. <span className="text-gradient">Ship it four times.</span>
+            </h2>
+            <p className="mt-5 max-w-[42ch] text-[17px] text-dim">
+              Pick a venue, fill the form, and send the same token to every chain you want, in a single run.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a href="#studio" className="btn btn-lg btn-white">
+                Start a launch
+                <ArrowRight size={18} strokeWidth={2} />
+              </a>
+              <a href="#venues" className="btn btn-lg btn-ghost">
+                <Grid size={18} />
+                Compare venues
+              </a>
+            </div>
+          </div>
+          <div className="mx-auto w-full max-w-[360px] rotate-[-3deg]">
+            <div className="card overflow-hidden p-4">
+              <div className="flex items-center justify-between px-1">
+                <span className="label">Block lattice</span>
+                <span className="font-mono text-[11px] text-mute">Game of Life</span>
+              </div>
+              <div className="inset-panel relative mt-3 h-56 overflow-hidden rounded-[18px]">
+                <LifeCanvas />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </Section>
+  );
+}
+
+const COLUMNS = [
+  {
+    title: "Product",
+    links: [
+      { href: "#studio", label: "Launch studio" },
+      { href: "#venues", label: "Venue fees" },
+      { href: "#how", label: "How mirroring works" },
+      { href: "#activity", label: "Activity" },
+    ],
+  },
+  {
+    title: "Project",
+    links: ["Status", "Changelog", "Terms", "GitHub"].map((label) => ({ href: "#", label })),
+  },
+];
+
+export function Footer() {
+  return (
+    <footer className="mx-auto mt-24 w-full max-w-[1240px] px-4 pb-8 sm:px-6 lg:mt-32">
+      <div className="card overflow-hidden px-6 pt-10 sm:px-10">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+          <div>
+            <Logo size={36} />
+            <p className="mt-5 max-w-[32ch] text-[20px] font-semibold leading-snug tracking-[-0.03em]">
+              One form, {LAUNCHPADS.length} venues, {CHAINS.length} chains. Launch once and mirror everywhere.
+            </p>
+          </div>
+          {COLUMNS.map((c) => (
+            <nav key={c.title} aria-label={c.title}>
+              <p className="label">{c.title}</p>
+              <ul className="mt-4 grid gap-2.5">
+                {c.links.map((l) => (
+                  <li key={l.label}>
+                    <a href={l.href} className="text-[14.5px] text-dim transition-colors hover:text-fg">
+                      {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+
+        <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 md:flex-row md:items-center md:justify-between">
+          <p className="max-w-[70ch] text-[13px] text-mute">
+            A launchpad aggregator demo. Mirrors are independent deployments, not bridged tokens. No real transactions are broadcast.
+          </p>
+          <p className="shrink-0 text-[13px] text-mute">© {new Date().getFullYear()} MirrorPad</p>
+        </div>
+
+        <p aria-hidden className="pointer-events-none mt-6 -mb-[0.12em] select-none text-center font-display text-[clamp(64px,13vw,190px)] leading-[0.8] tracking-[0.08em] text-fg/[.05]">
+          mirrorpad
+        </p>
+      </div>
+    </footer>
+  );
+}

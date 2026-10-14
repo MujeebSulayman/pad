@@ -8,9 +8,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@privy-io/react-auth": "^3.49.0",
+    "@solana/kit": "^5.5.1",
     "next": "^15.5.27",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "viem": "^2.56.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

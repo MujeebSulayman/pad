@@ -114,6 +114,29 @@ export const Wallet = (p: P) => (
     <path d="M2 7h12M11 10h1.5" />
   </svg>
 );
+export const ArrowRight = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M3 8h10M9 4l4 4-4 4" />
+  </svg>
+);
+export const Receipt = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M3.5 2h9v12l-1.5-1-1.5 1-1.5-1-1.5 1-1.5-1-1.5 1V2z" />
+    <path d="M6 5.5h4M6 8h4M6 10.5h2" />
+  </svg>
+);
+export const Sparkles = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M6.5 2.5l1.1 3.4 3.4 1.1-3.4 1.1-1.1 3.4-1.1-3.4L2 7l3.4-1.1 1.1-3.4z" />
+    <path d="M12 10l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4L10 12l1.4-.6.6-1.4z" />
+  </svg>
+);
+export const Help = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="8" cy="8" r="6" />
+    <path d="M6.3 6.2a1.8 1.8 0 013.5.6c0 1.2-1.8 1.5-1.8 2.6M8 11.2h.01" />
+  </svg>
+);
 export const Book = (p: P) => (
   <svg {...base(p)}>
     <path d="M3 3.2c1.8-.6 3.5-.4 5 .8 1.5-1.2 3.2-1.4 5-.8v9.6c-1.8-.6-3.5-.4-5 .8-1.5-1.2-3.2-1.4-5-.8V3.2z" />

@@ -20,12 +20,11 @@ export function LaunchesTable({ rows }: { rows: Launch[] }) {
   return (
     <div className="glass overflow-hidden rounded-[30px]" data-lg="surface" data-lg-r="30" data-lg-tint="card">
       <div className="flex items-center justify-between gap-4 px-6 py-5">
-        <div>
-          <p className="eyebrow">Activity</p>
-          <h3 className="mt-2 text-[24px] leading-tight">Recent launches</h3>
-          <p className="mt-1 text-[13px] text-dim">Every deployment routed through this aggregator. Mirror sets share a name and symbol but each leg is its own contract.</p>
-        </div>
-        <Badge>{rows.length}</Badge>
+        <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-dim">MirrorPad · deployments</span>
+        <span className="pill !h-7 font-mono text-[11px]">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-good shadow-[0_0_10px_var(--good)]" />
+          {rows.length} launches
+        </span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse text-left">

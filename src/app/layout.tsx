@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { GlassBoot } from "@/components/glass-boot";
+import { LiquidGlassDefs } from "@/components/liquid-glass";
 import { themeInitScript } from "@/components/theme";
 import { ToastProvider } from "@/components/toast";
+import { WalletProvider } from "@/components/wallet/wallet-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,8 +39,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=clash-display@400,500,600,700&display=swap" />
       </head>
       <body>
+        <LiquidGlassDefs />
         <GlassBoot />
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <WalletProvider>{children}</WalletProvider>
+        </ToastProvider>
       </body>
     </html>
   );

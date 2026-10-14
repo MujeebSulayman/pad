@@ -93,6 +93,9 @@ html {
 
   --menu-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
 
+  /* Canvas widgets (Game of Life). */
+  --life-cell: rgba(197, 242, 74, 0.45);
+
   --nav-h: 60px;
   color-scheme: dark;
 }
@@ -145,6 +148,7 @@ html[data-theme="light"] {
   --t-teal: #0f7d77;
 
   --menu-shadow: 0 30px 70px -24px rgba(60, 45, 20, 0.4), 0 0 0 1px rgba(12, 12, 12, 0.06);
+  --life-cell: rgba(12, 12, 12, 0.22);
   color-scheme: light;
 }
 
@@ -692,7 +696,7 @@ html.gl.scrolling [data-lg="surface"] {
       inset 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent),
       0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent);
   }
-  .field > span {
+  .field > span:not(.field-row) {
     position: absolute;
     top: 11px;
     left: 16px;
@@ -950,6 +954,57 @@ html.gl.scrolling [data-lg="surface"] {
     box-shadow:
       var(--edge-sm),
       var(--menu-shadow);
+  }
+
+  /* Floating-label wells: a fixed prefix, a counter in the corner, and an invalid ring. */
+  .field.is-invalid,
+  .field.is-invalid:focus-within {
+    box-shadow:
+      var(--field-in),
+      inset 0 0 0 1px color-mix(in srgb, var(--bad) 75%, transparent);
+  }
+  .field > em {
+    position: absolute;
+    top: 11px;
+    right: 16px;
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--mute);
+    pointer-events: none;
+  }
+  .field > .field-row {
+    display: flex;
+    align-items: baseline;
+  }
+  .field > .field-row > b {
+    padding: 29px 0 12px 16px;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .field > .field-row > input {
+    flex: 1;
+    min-width: 0;
+    padding-left: 6px;
+  }
+
+  /* Venue report: each receipt line is a button that picks the venue. */
+  .report-row {
+    display: block;
+    width: calc(100% + 28px);
+    margin-inline: -14px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    text-align: left;
+    transition: background-color 0.3s;
+  }
+  .report-row:hover {
+    background: color-mix(in srgb, var(--fg) 4%, transparent);
+  }
+  .report-row[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
   }
 
   /* Mobile: the floating action bar sits on top of the tab bar. */

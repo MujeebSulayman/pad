@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CHAIN, EMPTY_DRAFT, PAD, SEED_LAUNCHES, padsOn, type ChainId, type Draft, type Launch, type Launchpad, type Mirrors } from "@/lib/data";
 import { mintAddress, txHash } from "@/lib/format";
 import { validate } from "@/lib/launch";
 import { useToast } from "../toast";
+import { useWallet } from "../wallet/context";
+import { useBalance } from "../wallet/use-balance";
 import { DesktopView } from "./desktop";
 import { LaunchModal } from "./launch-modal";
 import type { Scope, Sort } from "./launchpad-picker";
@@ -17,7 +19,6 @@ export function MirrorPad() {
   const [chain, setChain] = useState<ChainId>("solana");
   const [padId, setPadId] = useState("pumpfun");
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
-  const [connected, setConnected] = useState(false);
   const [runOpen, setRunOpen] = useState(false);
   const [runs, setRuns] = useState(0);
   const [scope, setScope] = useState<Scope>("chain");
@@ -35,8 +36,26 @@ export function MirrorPad() {
 
   const pad = PAD[padId];
   const chainInfo = CHAIN[chain];
-  const address = useMemo(() => mintAddress(chain, "wallet-session"), [chain]);
+  const wallet = useWallet();
+  const connected = wallet.connected;
+  const address = wallet.addressFor(chain);
+  // Simulated addresses don't exist on-chain, so only real wallets get a balance lookup.
+  const balance = useBalance(chain, address, wallet.mode === "privy");
   const { errors, issues } = useMemo(() => validate(draft, pad), [draft, pad]);
+
+  // Toast on connect / disconnect, but not when a saved session is restored on load.
+  const wasConnected = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!wallet.ready) return;
+    if (wasConnected.current === null) {
+      wasConnected.current = connected;
+      return;
+    }
+    if (wasConnected.current === connected) return;
+    wasConnected.current = connected;
+    toast(connected ? { tone: "success", title: "Wallet connected", description: `Signing on ${chainInfo.name}.` } : { tone: "info", title: "Wallet disconnected" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet.ready, connected]);
 
   /** Switch primary chain: its first venue becomes the pick, and it can no longer be a mirror. */
   const selectChain = (c: ChainId) => {
@@ -54,14 +73,6 @@ export function MirrorPad() {
     setPadId(p.id);
   };
 
-  const connect = () => {
-    setConnected(true);
-    toast({ tone: "success", title: "Wallet connected", description: `Signing on ${chainInfo.name}.` });
-  };
-  const disconnect = () => {
-    setConnected(false);
-    toast({ tone: "info", title: "Wallet disconnected" });
-  };
   const launch = () => {
     setRuns((n) => n + 1);
     setRunOpen(true);
@@ -77,8 +88,10 @@ export function MirrorPad() {
     issues,
     mirrors,
     launches,
+    walletReady: wallet.ready,
     connected,
     address,
+    balance,
     scope,
     sort,
     onScopeChange: setScope,
@@ -87,8 +100,8 @@ export function MirrorPad() {
     onSelectPad: selectPad,
     onDraftChange: (patch) => setDraft((d) => ({ ...d, ...patch })),
     onMirrorsChange: setMirrors,
-    onConnect: connect,
-    onDisconnect: disconnect,
+    onConnect: wallet.connect,
+    onDisconnect: wallet.disconnect,
     onLaunch: launch,
   };
 

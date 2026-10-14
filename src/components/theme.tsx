@@ -47,6 +47,22 @@ export function useTheme() {
   return theme;
 }
 
+/** One round button that flips the theme; it shows the theme you'd switch to. */
+export function ThemeButton({ className }: { className?: string }) {
+  const theme = useTheme();
+  const light = theme === "light";
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(light ? "dark" : "light")}
+      aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
+      className={cn("grid h-10 w-10 place-items-center rounded-full text-mute transition-colors hover:text-fg", className)}
+    >
+      {light ? <Moon size={18} /> : <Sun size={18} />}
+    </button>
+  );
+}
+
 /** Light / dark as a glass segmented control. */
 export function ThemeToggle({ className }: { className?: string }) {
   const theme = useTheme();
