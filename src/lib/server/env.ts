@@ -8,7 +8,7 @@ import "server-only";
 const clean = (v: string | undefined) => (v ?? "").trim();
 
 export const DATABASE_URL = clean(process.env.DATABASE_URL);
-/** Privy app id (shared with the client) and the app's verification key from Dashboard → Settings. */
+/** Privy app id (shared with the client). The verification key is optional: without it, Privy's published keys are used. */
 export const PRIVY_APP_ID = clean(process.env.NEXT_PUBLIC_PRIVY_APP_ID);
 export const PRIVY_VERIFICATION_KEY = clean(process.env.PRIVY_VERIFICATION_KEY).replace(/\\n/g, "\n");
 export const PINATA_JWT = clean(process.env.PINATA_JWT);
