@@ -70,7 +70,7 @@ export const POST = route(async (req) => {
     }),
   });
 
-  const img = await fetch(gatewayUrl(str(b.image, "image", 500)));
+  const img = await fetch(await gatewayUrl(str(b.image, "image", 500)));
   const type = img.headers.get("content-type")?.split(";")[0] ?? "";
   if (!img.ok || !IMAGE_TYPES.includes(type)) throw new HttpError(400, "Could not read the token image.");
   const upload = new FormData();

@@ -13,7 +13,7 @@ export const GET = route(async (_req: Request, { params }: { params: Promise<{ c
   const { cid } = await params;
   if (!CID.test(cid)) throw new HttpError(400, "Not an IPFS CID.");
 
-  const res = await fetch(gatewayUrl(`ipfs://${cid}`), { signal: AbortSignal.timeout(20_000) });
+  const res = await fetch(await gatewayUrl(`ipfs://${cid}`), { signal: AbortSignal.timeout(20_000) });
   const type = res.headers.get("content-type")?.split(";")[0] ?? "";
   if (!res.ok) throw new HttpError(502, `Gateway answered ${res.status}.`);
   if (!IMAGE_TYPES.includes(type)) throw new HttpError(415, "Not an image.");
@@ -23,7 +23,8 @@ export const GET = route(async (_req: Request, { params }: { params: Promise<{ c
   return new Response(body, {
     headers: {
       "content-type": type,
-      "cache-control": "public, max-age=31536000, immutable",
+      // s-maxage lets Vercel's CDN keep it too, so the gateway is hit once per image, not per view.
+      "cache-control": "public, max-age=31536000, s-maxage=31536000, immutable",
       "x-content-type-options": "nosniff",
     },
   });

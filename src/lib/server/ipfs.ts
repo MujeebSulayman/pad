@@ -3,7 +3,26 @@ import { HttpError, IPFS_GATEWAY, PINATA_JWT, requireConfig } from "./env";
 
 export type Pinned = { cid: string; uri: string; url: string };
 
-const pinned = (cid: string): Pinned => ({ cid, uri: `ipfs://${cid}`, url: `${IPFS_GATEWAY}/ipfs/${cid}` });
+/** Pinata's shared gateway: the fallback when the configured one doesn't answer. */
+const FALLBACK_GATEWAY = "https://gateway.pinata.cloud";
+let gatewayCheck: Promise<string> | null = null;
+
+/**
+ * The gateway for links we hand out. Checked once per server instance: a mistyped PINATA_GATEWAY
+ * (an unknown host) would otherwise end up in token metadata that can't be changed afterwards.
+ */
+function gateway(): Promise<string> {
+  if (IPFS_GATEWAY === FALLBACK_GATEWAY) return Promise.resolve(FALLBACK_GATEWAY);
+  gatewayCheck ??= fetch(IPFS_GATEWAY, { method: "HEAD", signal: AbortSignal.timeout(8_000) })
+    .then(() => IPFS_GATEWAY)
+    .catch((e) => {
+      console.error(`PINATA_GATEWAY ${IPFS_GATEWAY} is unreachable (${e?.cause?.code ?? e?.message}); using ${FALLBACK_GATEWAY}.`);
+      return FALLBACK_GATEWAY;
+    });
+  return gatewayCheck;
+}
+
+const pinned = async (cid: string): Promise<Pinned> => ({ cid, uri: `ipfs://${cid}`, url: `${await gateway()}/ipfs/${cid}` });
 
 /** Pins a file to public IPFS through Pinata. */
 export async function pinFile(file: Blob, name: string): Promise<Pinned> {
@@ -44,7 +63,7 @@ export async function pinRemoteImage(url: string): Promise<Pinned> {
 }
 
 /** Gateway URL for an ipfs:// URI; anything else passes through. For venues, which need an absolute URL. */
-export const gatewayUrl = (uri: string) => (uri.startsWith("ipfs://") ? `${IPFS_GATEWAY}/ipfs/${uri.slice(7)}` : uri);
+export const gatewayUrl = async (uri: string) => (uri.startsWith("ipfs://") ? `${await gateway()}/ipfs/${uri.slice(7)}` : uri);
 
 /** Where our own pages load an image from: our cached /api/ipfs route for anything on IPFS. */
 export const displayUrl = (uri: string) => {
