@@ -18,13 +18,13 @@ export type LegCtx = {
 };
 
 export type LegResult = {
-  /** success: confirmed on-chain. pending: submitted for review. handoff: the user finishes on the venue. */
-  status: "success" | "pending" | "handoff";
+  /** success: confirmed on-chain. pending: submitted for review. */
+  status: "success" | "pending";
   creator: string;
   mint?: string;
   tx?: string;
   details?: Record<string, string>;
-  /** A follow-up for the user, e.g. seeding a pool or finishing on the venue. */
+  /** A follow-up for the user, e.g. seeding a pool. */
   next?: { label: string; href: string };
 };
 

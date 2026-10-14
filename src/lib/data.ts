@@ -1,5 +1,5 @@
 /*
- * The MirrorPad catalogue: four chains, twelve launchpads, the per-venue form fields,
+ * The MirrorPad catalogue: four chains, ten launchpads, the per-venue form fields,
  * reference prices and the seeded activity feed. Every number here is an editable default,
  * not a live quote from the venue.
  */
@@ -21,7 +21,7 @@ export type Chain = {
 };
 
 export type PadStatus = "live" | "beta" | "waitlist" | "approval";
-export type Integration = "onchain" | "review" | "handoff";
+export type Integration = "onchain" | "review";
 export type Curve = "listing" | "fair-launch" | "bonding" | "auction";
 
 export type FieldKey =
@@ -49,7 +49,7 @@ export type Launchpad = {
   tagline: string;
   description: string;
   status: PadStatus;
-  /** How MirrorPad launches here: a transaction it builds, a review submission, or a hand-off to the venue. */
+  /** How MirrorPad launches here: a transaction it builds and the user signs, or a review submission. */
   integration: Integration;
   url: string;
   tradeFeeBps: number;
@@ -235,25 +235,6 @@ export const LAUNCHPADS: Launchpad[] = [
     liquidityDest: "Meteora DBC",
   },
   {
-    id: "raydium-launchlab",
-    name: "Raydium LaunchLab",
-    chain: "solana",
-    tagline: "Configurable curve into Raydium",
-    description:
-      "Set your own curve shape, quote asset and migration target, then land directly in a Raydium pool. The most tunable of the Solana venues.",
-    status: "live",
-    integration: "handoff",
-    url: "https://raydium.io/launchpad/create/",
-    tradeFeeBps: 100,
-    createFee: 0.015,
-    graduationUsd: 85e3,
-    curve: "bonding",
-    creatorRevBps: 10,
-    features: ["Custom curve", "Quote asset choice", "Raydium native", "Vesting support"],
-    fields: [...BASE_FIELDS, "website", "twitter", "telegram"],
-    liquidityDest: "Raydium CPMM",
-  },
-  {
     id: "zora",
     name: "Zora",
     chain: "base",
@@ -309,25 +290,6 @@ export const LAUNCHPADS: Launchpad[] = [
     features: ["Programmable fees", "Auto buyback", "Fair launch window", "Treasury routing"],
     fields: [...BASE_FIELDS, "creatorFeeBps", "website", "twitter"],
     liquidityDest: "Uniswap v4",
-  },
-  {
-    id: "virtuals",
-    name: "Virtuals Protocol",
-    chain: "base",
-    tagline: "Tokenized AI agents",
-    description:
-      "Bond an AI agent into its own token. The agent's inference and revenue are tied to the token, with a genesis window before the pool opens.",
-    status: "live",
-    integration: "handoff",
-    url: "https://app.virtuals.io",
-    tradeFeeBps: 100,
-    createFee: 0.0025,
-    graduationUsd: 42e3,
-    curve: "bonding",
-    creatorRevBps: 30,
-    features: ["Agent identity", "Genesis window", "Points allocation", "Revenue accrual"],
-    fields: [...BASE_FIELDS, "website", "twitter"],
-    liquidityDest: "Uniswap v2",
   },
   {
     id: "fourmeme",

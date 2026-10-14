@@ -11,7 +11,7 @@ import { useToast } from "../toast";
 import { Badge, Button, Modal, Spinner, TokenAvatar } from "../ui";
 import { useWallet, type Signer } from "../wallet/context";
 
-/** How each leg ended. `handoff` legs are finished by the user on the venue itself. */
+/** How each leg ended. */
 type Outcome = { status: LegResult["status"] | "failed"; mint?: string; tx?: string; error?: string; next?: LegResult["next"] };
 
 const explorerTx = (chain: Launchpad["chain"], tx: string) => `${CHAIN[chain].explorer}/tx/${tx}`;
@@ -104,26 +104,24 @@ export function LaunchModal({
         const r = await ADAPTERS[leg.pad.id].run({ pad: leg.pad, draft: d, meta, signer, call, step });
 
         step("index");
-        if (r.status !== "handoff") {
-          try {
-            const { launch } = await call<{ launch: Launch }>("/api/launches", {
-              launchpadId: leg.pad.id,
-              creator: r.creator,
-              status: r.status,
-              mint: r.mint,
-              txHash: r.tx,
-              mirrorGroup: group,
-              mirrorCount: multi ? legs.length : undefined,
-              token: { name: d.name, symbol: d.symbol, description: d.description, imageUrl: meta.imageUri, metadataUri: meta.metadataUri },
-              details: r.details,
-            });
-            saved.push(launch);
-          } catch (e) {
-            // The launch itself happened; only the feed write failed.
-            unsaved = true;
-            saved.push(localLaunch(leg.pad, r, meta.imageUrl, group, multi ? legs.length : undefined));
-            console.error("saving launch", e);
-          }
+        try {
+          const { launch } = await call<{ launch: Launch }>("/api/launches", {
+            launchpadId: leg.pad.id,
+            creator: r.creator,
+            status: r.status,
+            mint: r.mint,
+            txHash: r.tx,
+            mirrorGroup: group,
+            mirrorCount: multi ? legs.length : undefined,
+            token: { name: d.name, symbol: d.symbol, description: d.description, imageUrl: meta.imageUri, metadataUri: meta.metadataUri },
+            details: r.details,
+          });
+          saved.push(launch);
+        } catch (e) {
+          // The launch itself happened; only the feed write failed.
+          unsaved = true;
+          saved.push(localLaunch(leg.pad, r, meta.imageUrl, group, multi ? legs.length : undefined));
+          console.error("saving launch", e);
         }
         ids.forEach((id, j) => setStep(li, j, { state: "done", hash: r.tx && (id === "submit" || id === "confirm") ? r.tx : undefined }));
         outcome = { status: r.status, mint: r.mint, tx: r.tx, next: r.next };
@@ -161,15 +159,11 @@ export function LaunchModal({
       setTimeout(() => {
         const d = snap.draft;
         const group = `mg-${Date.now()}`;
-        const results: Outcome[] = legs.map((l) =>
-          l.pad.integration === "handoff" ? { status: "handoff" } : { status: isReviewed(l.pad) ? "pending" : "success", mint: l.mint, tx: l.tx },
-        );
+        const results: Outcome[] = legs.map((l) => ({ status: isReviewed(l.pad) ? "pending" : "success", mint: l.mint, tx: l.tx }));
         setOutcomes(results);
         setDone(true);
         onComplete(
-          legs
-            .filter((l) => l.pad.integration !== "handoff")
-            .map((l, i) => ({
+          legs.map((l, i) => ({
               id: `${Date.now()}-${i}`,
               launchpadId: l.pad.id,
               chain: l.chain,
@@ -228,9 +222,7 @@ export function LaunchModal({
             ? `${d.symbol} mirrored across ${legs.length} chains`
             : results[0].status === "pending"
               ? `${d.symbol} submitted for review`
-              : results[0].status === "handoff"
-                ? `Finish ${d.symbol} on ${legs[0].pad.name}`
-                : `${d.symbol} is live`,
+              : `${d.symbol} is live`,
       description: multi ? legs.map((l) => CHAIN[l.chain].shortName).join(", ") : `${CHAIN[legs[0].chain].name} via ${legs[0].pad.name}.`,
       action,
     });
@@ -256,9 +248,7 @@ export function LaunchModal({
           ? `Mirrored to ${legs.length} chains`
           : only?.status === "pending"
             ? "Submitted for review"
-            : only?.status === "handoff"
-              ? `Finish on ${p.name}`
-              : "Launch complete"
+            : "Launch complete"
     : multi
       ? `Mirroring $${d.symbol}`
       : `Launching $${d.symbol}`;
@@ -270,9 +260,7 @@ export function LaunchModal({
         ? `${d.name} has an independent deployment on each chain that succeeded. Liquidity is not shared between them.`
         : only?.status === "pending"
           ? `${p.name} has your issuance packet. Status will flip to live once it clears review.`
-          : only?.status === "handoff"
-            ? `${p.name} launches from its own app. Complete it there.`
-            : `${d.name} is deployed on ${CHAIN[p.chain].name}.`
+          : `${d.name} is deployed on ${CHAIN[p.chain].name}.`
     : multi
       ? `Running ${legs.length} adapters — expect a wallet prompt per chain.`
       : `Running the ${p.name} adapter against ${CHAIN[p.chain].network}.`;
@@ -409,7 +397,6 @@ export function LaunchModal({
                     </span>
                     <span className="font-semibold text-fg">{chain.shortName}</span>· {leg.pad.name}
                     {o.status === "pending" && <span className="text-t-amber">· in review</span>}
-                    {o.status === "handoff" && <span className="text-t-amber">· finish on venue</span>}
                     {o.status === "failed" && <span className="text-bad">· failed</span>}
                   </p>
                   {o.error && <p className="mt-1 break-words text-[12px] text-bad">{o.error.slice(0, 240)}</p>}
