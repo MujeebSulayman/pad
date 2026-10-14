@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { PAD, type ChainId, type Launch, type LaunchStatus } from "@/lib/data";
+import { FIELD_META, PAD, type ChainId, type Launch, type LaunchStatus } from "@/lib/data";
 import { requireUser } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
 import { HttpError } from "@/lib/server/env";
@@ -69,7 +69,10 @@ type LegBody = {
   details?: Record<string, string>;
 };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Extra fields a review venue requires when it asks for them. */
+const REVIEW_REQUIRED = ["issuerEntity", "jurisdiction"] as const;
+
+const UUID =/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Records one leg of a launch run. Successful on-chain legs are verified against the chain first. */
 export const POST = route(async (req) => {
@@ -97,6 +100,14 @@ export const POST = route(async (req) => {
       .slice(0, 20)
       .map(([k, v]) => [k.slice(0, 40), v.slice(0, 500)]),
   );
+
+  // Review submissions must carry the same required fields the form enforces (see validate in lib/launch).
+  if (pad.integration === "review" && b.status === "pending") {
+    if (!optStr(b.token?.description)) throw new HttpError(400, "Description is required.");
+    for (const f of REVIEW_REQUIRED) {
+      if (pad.fields.includes(f) && !details[f]?.trim()) throw new HttpError(400, `${FIELD_META[f].label} is required for ${pad.name}.`);
+    }
+  }
 
   const sql = await db();
   const [row] = (await sql`

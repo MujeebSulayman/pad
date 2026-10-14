@@ -160,7 +160,7 @@ export function LaunchSummary({
             {issues.length} item{issues.length === 1 ? "" : "s"} left
           </p>
           <ul className="mt-1 space-y-0.5 opacity-90">
-            {issues.slice(0, 4).map((i) => (
+            {issues.map((i) => (
               <li key={i}>· {i}</li>
             ))}
           </ul>
