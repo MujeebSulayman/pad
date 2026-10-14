@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/server/auth";
 import { BAGS_API_KEY, HttpError, requireConfig } from "@/lib/server/env";
-import { jsonBody, optStr, route, str, venueFetch } from "@/lib/server/http";
+import { jsonBody, optStr, route, str, venueError, venueFetch } from "@/lib/server/http";
 
 const API = "https://public-api-v2.bags.fm/api/v1";
 /** Bags' default fee-share config type (from @bagsfm/bags-sdk BAGS_CONFIG_TYPE.DEFAULT). */
@@ -10,8 +10,9 @@ type Envelope<T> = { success: boolean; response: T; error?: string };
 
 async function bags<T>(path: string, init: RequestInit): Promise<T> {
   const headers = { "x-api-key": requireConfig(BAGS_API_KEY, "BAGS_API_KEY"), ...init.headers };
-  const body = await venueFetch<Envelope<T>>("Bags", `${API}${path}`, { ...init, headers });
-  if (!body.success) throw new HttpError(502, `Bags: ${body.error ?? "request failed"}`);
+  // Name the failing call ("Bags fee-share/config: …") so errors say which step broke.
+  const body = await venueFetch<Envelope<T>>(`Bags ${path.split("/").slice(-2).join("/")}`, `${API}${path}`, { ...init, headers });
+  if (!body.success) throw new HttpError(502, `Bags ${path}: ${venueError(body) ?? "request failed"}`);
   return body.response;
 }
 

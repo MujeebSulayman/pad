@@ -41,8 +41,26 @@ export async function venueFetch<T>(venue: string, url: string, init: RequestIni
     body = JSON.parse(text);
   } catch {}
   if (!res.ok) {
-    const msg = (body as { error?: string; message?: string })?.error ?? (body as { message?: string })?.message ?? (text.slice(0, 200) || res.statusText);
-    throw new HttpError(502, `${venue}: ${msg}`);
+    console.error(`${venue} HTTP ${res.status}:`, text.slice(0, 1000));
+    throw new HttpError(502, `${venue}: ${venueError(body) ?? (text.slice(0, 200) || res.statusText)} (HTTP ${res.status})`);
   }
   return body as T;
+}
+
+/** A venue's error text, wherever it puts it (Bags uses `response`, others `error` or `message`). */
+export function venueError(body: unknown): string | undefined {
+  if (!body || typeof body !== "object") return undefined;
+  const b = body as { error?: unknown; message?: unknown; msg?: unknown; response?: unknown };
+  const v = b.error ?? b.message ?? b.msg ?? (typeof b.response === "string" ? b.response : undefined);
+  if (typeof v === "string") return humanize(v);
+  return v ? JSON.stringify(v).slice(0, 300) : undefined;
+}
+
+/** Zod-style validation arrays become "field: problem; field: problem". */
+function humanize(v: string): string {
+  try {
+    const issues = JSON.parse(v);
+    if (Array.isArray(issues)) return issues.map((i) => `${(i.path ?? []).join(".") || "request"}: ${i.message}`).join("; ");
+  } catch {}
+  return v.slice(0, 300);
 }
