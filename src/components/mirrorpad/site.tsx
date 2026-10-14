@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
 import { PRIVY_APP_ID } from "@/lib/env";
-import { cn, shortAddr } from "@/lib/format";
+import { cn } from "@/lib/format";
 import { ArrowRight, Check, ChevronDown, Grid, Help, Layers, Logo, Rocket, Sparkles, Wallet } from "../icons";
 import { LifeCanvas } from "../life-canvas";
 import { Reveal } from "../reveal";
 import { ThemeButton } from "../theme";
+import { WalletButton } from "../wallet/wallet-menu";
 import { Button } from "../ui";
 import { Section } from "./section";
 import type { ViewProps } from "./types";
@@ -71,13 +72,7 @@ export function DesktopHeader({
       <div className="flex shrink-0 items-center gap-1.5">
         <ThemeButton />
         {connected ? (
-          <button onClick={onDisconnect} className="btn btn-sm btn-ghost !h-10 !gap-2 !pl-2.5" title="Disconnect">
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-good text-[var(--accent-ink)]">
-              <Check size={11} strokeWidth={2.4} />
-            </span>
-            <span className="font-mono text-[12.5px]">{address ? shortAddr(address, 5, 4) : "No wallet on this chain"}</span>
-            <ChevronDown size={13} className="text-mute" />
-          </button>
+          <WalletButton address={address} onDisconnect={onDisconnect} />
         ) : (
           <Button variant="secondary" size="sm" className="!h-10" prefix={<Wallet size={15} />} loading={!walletReady} onClick={onConnect}>
             Connect

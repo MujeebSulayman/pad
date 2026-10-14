@@ -2,11 +2,12 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { CHAIN, CHAINS, LAUNCHPADS, STATUS_LABEL, padsOn } from "@/lib/data";
-import { cn, fmtBps, fmtUsd, shortAddr } from "@/lib/format";
+import { cn, fmtBps, fmtUsd } from "@/lib/format";
 import { costLegs, totalUsd } from "@/lib/launch";
 import { usePrices } from "../use-prices";
-import { Alert, ChainMark, Check, ChevronRight, Grid, Layers, Logo, Receipt, Rocket, Wallet } from "../icons";
+import { Alert, ChainMark, ChevronRight, Grid, Layers, Logo, Receipt, Rocket, Wallet } from "../icons";
 import { ThemeButton } from "../theme";
+import { WalletButton } from "../wallet/wallet-menu";
 import { Badge, Button, Notice, Row } from "../ui";
 import { ChainPicker } from "./chain-picker";
 import { ActivityList } from "./launches";
@@ -94,12 +95,7 @@ export function MobileView(p: ViewProps) {
         <div className="ml-auto flex items-center gap-1">
           <ThemeButton />
           {p.connected ? (
-            <button onClick={p.onDisconnect} className="btn btn-sm btn-ghost !h-10 !gap-1.5 !px-3" title="Disconnect">
-              <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-good text-[var(--accent-ink)]">
-                <Check size={10} strokeWidth={2.4} />
-              </span>
-              <span className="font-mono text-[11.5px]">{p.address ? shortAddr(p.address, 4, 4) : "No wallet"}</span>
-            </button>
+            <WalletButton address={p.address} onDisconnect={p.onDisconnect} compact />
           ) : (
             <Button variant="secondary" size="sm" className="!h-10" prefix={<Wallet size={15} />} loading={!p.walletReady} onClick={p.onConnect}>
               Connect
