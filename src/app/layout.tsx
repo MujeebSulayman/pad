@@ -1,0 +1,45 @@
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import { GlassBoot } from "@/components/glass-boot";
+import { themeInitScript } from "@/components/theme";
+import { ToastProvider } from "@/components/toast";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "MirrorPad — Launch once, mirror everywhere",
+  description:
+    "Launch a token on Robinhood, Solana, Base or BNB Chain from one form — or mirror the same token across all four in a single run. Compare fees, curves and graduation thresholds across 14 venues before you sign.",
+  applicationName: "MirrorPad",
+  manifest: "/manifest.webmanifest",
+  icons: { icon: { url: "/icon.svg", type: "image/svg+xml" } },
+  appleWebApp: { title: "MirrorPad", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ecede6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0c0e" },
+  ],
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    // data-theme is rewritten by themeInitScript before hydration.
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=clash-display@400,500,600,700&display=swap" />
+      </head>
+      <body>
+        <GlassBoot />
+        <ToastProvider>{children}</ToastProvider>
+      </body>
+    </html>
+  );
+}

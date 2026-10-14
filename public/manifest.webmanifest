@@ -1,0 +1,13 @@
+{
+  "name": "MirrorPad — Launch once, mirror everywhere",
+  "short_name": "MirrorPad",
+  "description": "Launch a token on Robinhood, Solana, Base or BNB Chain — or mirror it across all four in one run.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
