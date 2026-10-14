@@ -2,6 +2,7 @@
 
 import { useEffect, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/format";
+import { previewSrc } from "@/lib/preview";
 import { ChevronDown, X } from "./icons";
 
 export function Spinner({ size = 16 }: { size?: number }) {
@@ -268,7 +269,7 @@ export function TokenAvatar({ imageUrl, symbol, className }: { imageUrl: string;
     <span className={cn("grid shrink-0 place-items-center overflow-hidden bg-[var(--field-bg)] font-mono text-mute shadow-[var(--edge-sm)]", className)}>
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+        <img src={previewSrc(imageUrl)} alt="" className="h-full w-full object-cover" />
       ) : (
         symbol.slice(0, 2) || "??"
       )}
