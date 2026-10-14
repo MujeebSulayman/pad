@@ -1,8 +1,9 @@
-import { createPublicClient, http, isAddressEqual, parseAbi, parseUnits, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
+import { createPublicClient, formatEther, http, isAddressEqual, parseAbi, parseUnits, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
 import { MIRROR_TOKEN_ABI, MIRROR_TOKEN_BYTECODE } from "../contracts/mirror-token";
 import type { ChainId } from "../data";
 import { RPC_URL } from "../env";
 import { VIEM_CHAIN } from "../evm-chains";
+import { gasFor, requireFunds } from "./funds";
 import { evmSigner, xUrl, type Adapter, type LegCtx, type StepDef } from "./types";
 
 type EvmChain = Exclude<ChainId, "solana">;
@@ -24,6 +25,7 @@ export const zora: Adapter = {
   run: async (ctx) => {
     const evm = evmSigner(ctx);
     ctx.step("build");
+    await requireFunds(ctx, evm.address);
     const call = await ctx.call<{ to: Address; data: Hex; coin: Address }>("/api/venues/zora", {
       creator: evm.address,
       name: ctx.draft.name,
@@ -47,6 +49,7 @@ export const clanker: Adapter = {
     const evm = evmSigner(ctx);
     const d = ctx.draft;
     ctx.step("sign");
+    await requireFunds(ctx, evm.address);
     const { Clanker } = await import("clanker-sdk/v4");
     const sdk = new Clanker({ wallet: (await evm.walletClient("base")) as never, publicClient: publicClient("base") as never });
     const socials = [d.twitter && { platform: "x", url: xUrl(d.twitter) }, d.website && { platform: "website", url: d.website }].filter(Boolean) as {
@@ -79,6 +82,7 @@ export const flaunch: Adapter = {
     const evm = evmSigner(ctx);
     const d = ctx.draft;
     ctx.step("sign");
+    await requireFunds(ctx, evm.address);
     const { createFlaunch } = await import("@flaunch/sdk");
     const sdk = createFlaunch({ publicClient: publicClient("base") as never, walletClient: (await evm.walletClient("base")) as never });
     const tx = await sdk.flaunch({
@@ -114,6 +118,7 @@ export const fourmeme: Adapter = {
     const evm = evmSigner(ctx);
     const d = ctx.draft;
     ctx.step("login");
+    await requireFunds(ctx, evm.address);
     const { message } = await ctx.call<{ message: string }>("/api/venues/fourmeme", { step: "nonce", address: evm.address });
     await evm.walletClient("bsc");
     const signature = await evm.signMessage(message);
@@ -132,6 +137,7 @@ export const fourmeme: Adapter = {
       devBuy: Number(d.devBuy) || 0,
     });
     ctx.step("sign");
+    await requireFunds(ctx, evm.address, Number(formatEther(BigInt(created.value))) + gasFor("bsc"));
     const wallet = await evm.walletClient("bsc");
     const tx = await wallet.writeContract({
       account: evm.address,
@@ -163,6 +169,7 @@ function erc20(chain: EvmChain, next?: (token: Address) => { label: string; href
       if (!Number.isInteger(decimals) || decimals > 18) throw new Error("Decimals must be a whole number from 0 to 18.");
       const supply = parseUnits(d.supply || "1000000000", decimals);
       ctx.step("sign");
+      await requireFunds(ctx, evm.address);
       const wallet = await evm.walletClient(chain);
       const tx = await wallet.deployContract({
         account: evm.address,

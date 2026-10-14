@@ -16,10 +16,10 @@ import {
   type NativeToken,
 } from "./data";
 import { stepsFor } from "./adapters";
+import { gasFor } from "./adapters/funds";
 import { mintAddress, txHash } from "./format";
 
-/** Estimated network gas per deploy, in the chain's native asset. */
-export const gasFor = (chain: ChainId) => (chain === "solana" ? 0.0015 : chain === "bsc" ? 0.0009 : 0.00012);
+export { gasFor };
 
 /** The dev buy only counts on venues that take one. */
 export const devBuyOf = (pad: Launchpad, draft: Draft) => (pad.fields.includes("devBuy") && Number(draft.devBuy)) || 0;

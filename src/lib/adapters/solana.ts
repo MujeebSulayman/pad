@@ -1,4 +1,5 @@
 import { fromBase58, fromBase64, newMintSigner, sendAndConfirm, signWithMint } from "../solana";
+import { requireFunds } from "./funds";
 import { solanaSigner, tgUrl, xUrl, type Adapter, type LegCtx } from "./types";
 
 const SIGN = { id: "sign", label: "Sign transaction", detail: "Approve in your wallet" };
@@ -10,6 +11,7 @@ export const pumpfun: Adapter = {
   run: async (ctx: LegCtx) => {
     const sol = solanaSigner(ctx);
     ctx.step("build");
+    await requireFunds(ctx, sol.address);
     const mint = await newMintSigner();
     const { transaction } = await ctx.call<{ transaction: string }>("/api/venues/pumpportal", {
       publicKey: sol.address,
@@ -40,6 +42,7 @@ export const bags: Adapter = {
     const sol = solanaSigner(ctx);
     const d = ctx.draft;
     ctx.step("register");
+    await requireFunds(ctx, sol.address);
     const info = await ctx.call<{ tokenMint: string; tokenMetadata: string }>("/api/venues/bags", {
       step: "token-info",
       name: d.name,
