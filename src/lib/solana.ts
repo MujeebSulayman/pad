@@ -46,6 +46,18 @@ async function rpc<T>(method: string, params: unknown[]): Promise<T> {
 
 type Status = { err: unknown; confirmationStatus?: "processed" | "confirmed" | "finalized" } | null;
 
+/** A recent blockhash, for transactions we build ourselves. */
+export async function latestBlockhash() {
+  const { value } = await rpc<{ value: { blockhash: string; lastValidBlockHeight: number } }>("getLatestBlockhash", [{ commitment: "confirmed" }]);
+  return { blockhash: value.blockhash, lastValidBlockHeight: BigInt(value.lastValidBlockHeight) };
+}
+
+/** Lamports held by `address`. */
+export async function lamportsOf(address: string): Promise<bigint> {
+  const { value } = await rpc<{ value: number }>("getBalance", [address, { commitment: "confirmed" }]);
+  return BigInt(value);
+}
+
 /**
  * Broadcasts a fully signed transaction (with preflight simulation) and waits for confirmation,
  * re-sending every few seconds until it lands or ~90 s pass. Returns the signature.

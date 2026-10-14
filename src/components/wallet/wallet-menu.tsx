@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CHAIN, type ChainId } from "@/lib/data";
 import { RPC_URL } from "@/lib/env";
 import { cn, shortAddr } from "@/lib/format";
 import { nativeBalance } from "@/lib/rpc";
+import { isValidRecipient, maxSendable, sendNative } from "@/lib/withdraw";
 import { ArrowUpRight, ChainMark, Check, ChevronDown, Copy, X } from "../icons";
 import { useToast } from "../toast";
+import { Button, Spinner, TextInput } from "../ui";
 import { useWallet } from "./context";
 
 /** One Solana wallet; one EVM wallet shared by every EVM chain. */
@@ -98,23 +100,22 @@ function WalletMenu({ anchor, ignore, onClose, onDisconnect }: { anchor: Anchor;
     };
   }, [anchor, ignore, onClose]);
 
-  // Fresh balances each time the menu opens. Simulated addresses don't exist on-chain, so skip them.
-  useEffect(() => {
+  const [sending, setSending] = useState<"solana" | "evm" | null>(null);
+
+  // Balances load when the menu opens and again after a send. Simulated addresses hold nothing, so skip them.
+  const loadBalances = useCallback(() => {
     if (!live) return;
-    let alive = true;
     for (const { chains } of WALLETS) {
       for (const chain of chains) {
         const address = wallet.addressFor(chain);
         if (!address || !RPC_URL[chain]) continue;
         nativeBalance(chain, address)
-          .then((v) => alive && setBalances((b) => ({ ...b, [chain]: v })))
-          .catch(() => alive && setBalances((b) => ({ ...b, [chain]: null })));
+          .then((v) => setBalances((b) => ({ ...b, [chain]: v })))
+          .catch(() => setBalances((b) => ({ ...b, [chain]: null })));
       }
     }
-    return () => {
-      alive = false;
-    };
   }, [live, wallet]);
+  useEffect(loadBalances, [loadBalances]);
 
   const copy = (address: string, label: string) => {
     navigator.clipboard?.writeText(address);
@@ -163,6 +164,18 @@ function WalletMenu({ anchor, ignore, onClose, onDisconnect }: { anchor: Anchor;
                 <span className="text-[13px] font-semibold">{label}</span>
                 {address && (
                   <span className="ml-auto flex items-center gap-0.5">
+                    {live && wallet.signer && (
+                      <button
+                        onClick={() => setSending((s) => (s === id ? null : id))}
+                        aria-expanded={sending === id}
+                        className={cn(
+                          "mr-1 h-7 rounded-full px-2.5 text-[12px] font-semibold transition-colors",
+                          sending === id ? "bg-[var(--steel-2)] text-fg" : "text-dim hover:bg-[var(--steel-2)] hover:text-fg",
+                        )}
+                      >
+                        Send
+                      </button>
+                    )}
                     <span className="mr-1 font-mono text-[12.5px] text-dim" title={address}>
                       {shortAddr(address, 5, 5)}
                     </span>
@@ -206,6 +219,21 @@ function WalletMenu({ anchor, ignore, onClose, onDisconnect }: { anchor: Anchor;
                   })}
                 </div>
               )}
+              {sending === id && address && wallet.signer && (
+                <SendForm
+                  chains={rows}
+                  from={address}
+                  onSent={(chain, tx) => {
+                    setSending(null);
+                    loadBalances();
+                    toast({
+                      tone: "success",
+                      title: `Sent from your ${CHAIN[chain].shortName} wallet`,
+                      action: { label: "View transaction", href: `${CHAIN[chain].explorer}/tx/${tx}` },
+                    });
+                  }}
+                />
+              )}
             </section>
           );
         })}
@@ -219,5 +247,92 @@ function WalletMenu({ anchor, ignore, onClose, onDisconnect }: { anchor: Anchor;
         </button>
       </div>
     </>
+  );
+}
+
+/** Native withdrawal: pick the chain (EVM), paste an address, type or Max the amount, send. */
+function SendForm({ chains, from, onSent }: { chains: ChainId[]; from: string; onSent: (chain: ChainId, tx: string) => void }) {
+  const { signer } = useWallet();
+  const [chain, setChain] = useState<ChainId>(chains[0]);
+  const [to, setTo] = useState("");
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState<"max" | "send" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const token = CHAIN[chain].nativeToken;
+  const badTo = to.trim() !== "" && !isValidRecipient(chain, to.trim());
+
+  const max = async () => {
+    setBusy("max");
+    setError(null);
+    try {
+      setAmount(await maxSendable(chain, from));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const send = async () => {
+    if (!signer) return;
+    setBusy("send");
+    setError(null);
+    try {
+      onSent(chain, await sendNative(signer, chain, to.trim(), amount.trim()));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(/rejected|denied|cancel/i.test(msg) ? "You cancelled the signature." : msg.slice(0, 220));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="mt-2.5 flex flex-col gap-2 border-t border-line pt-2.5">
+      {chains.length > 1 && (
+        <div className="grid grid-cols-3 gap-1 rounded-[12px] bg-[var(--field-bg)] p-1 shadow-[var(--field-in)]" role="radiogroup" aria-label="Chain">
+          {chains.map((c) => (
+            <button
+              key={c}
+              role="radio"
+              aria-checked={chain === c}
+              onClick={() => {
+                setChain(c);
+                setAmount("");
+                setError(null);
+              }}
+              className={cn("h-7 rounded-[9px] text-[12px] font-semibold transition-colors", chain === c ? "bg-[var(--knob)] text-fg shadow-[var(--edge-sm)]" : "text-dim hover:text-fg")}
+            >
+              {CHAIN[c].shortName}
+            </button>
+          ))}
+        </div>
+      )}
+      <TextInput
+        value={to}
+        onChange={(e) => setTo(e.target.value)}
+        placeholder={chain === "solana" ? "Recipient Solana address" : "Recipient 0x address"}
+        invalid={badTo}
+        spellCheck={false}
+        autoComplete="off"
+        className="!h-10 font-mono !text-[12px]"
+      />
+      <div className="flex gap-1.5">
+        <TextInput
+          value={amount}
+          onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+          placeholder={`Amount in ${token}`}
+          inputMode="decimal"
+          className="!h-10 min-w-0 flex-1 font-mono !text-[12.5px]"
+        />
+        <Button variant="secondary" size="sm" className="!h-10" onClick={max} disabled={!!busy}>
+          {busy === "max" ? <Spinner size={12} /> : "Max"}
+        </Button>
+      </div>
+      {error && <p className="text-[12px] leading-4 text-bad">{error}</p>}
+      <Button variant="accent" size="sm" full className="!h-10" loading={busy === "send"} disabled={!!busy || !to.trim() || badTo || !(Number(amount) > 0)} onClick={send}>
+        {busy === "send" ? "Confirm in your wallet…" : `Send ${amount || "0"} ${token}`}
+      </Button>
+    </div>
   );
 }
