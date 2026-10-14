@@ -29,12 +29,17 @@ export const believe: Adapter = {
   },
 };
 
-/** Virtuals has no public creation API: the agent is set up on Virtuals itself. */
-export const virtuals: Adapter = {
-  steps: () => [{ id: "open", label: "Continue on Virtuals", detail: "Agent creation happens in the Virtuals app" }],
-  run: async (ctx) => {
-    ctx.step("open");
-    window.open(ctx.pad.url, "_blank", "noopener");
-    return { status: "handoff", creator: ctx.signer.evm?.address ?? "", next: { label: "Open Virtuals", href: ctx.pad.url } };
-  },
-};
+/** Venues with no wallet-signable creation API: the launch is finished in the venue's own app. */
+function openVenue(detail: string): Adapter {
+  return {
+    steps: (chain) => [{ id: "open", label: "Continue on the venue", detail: `${detail} · ${chain.shortName}` }],
+    run: async (ctx) => {
+      ctx.step("open");
+      window.open(ctx.pad.url, "_blank", "noopener");
+      return { status: "handoff", creator: "", next: { label: `Open ${ctx.pad.name}`, href: ctx.pad.url } };
+    },
+  };
+}
+
+export const virtuals = openVenue("Agent creation happens in the Virtuals app");
+export const launchlab = openVenue("Curve setup happens in Raydium's LaunchLab app");

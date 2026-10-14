@@ -1,7 +1,7 @@
 import { CHAIN, type Launchpad } from "../data";
 import { clanker, flaunch, fourmeme, pancakeswap, robinhoodMint, zora } from "./evm";
-import { believe, review, virtuals } from "./offchain";
-import { bags, jupiter, launchlab, pumpfun } from "./solana";
+import { believe, launchlab, review, virtuals } from "./offchain";
+import { bags, jupiter, pumpfun } from "./solana";
 import type { Adapter, StepDef } from "./types";
 
 export type { Adapter, LegCtx, LegResult, Meta, StepDef } from "./types";

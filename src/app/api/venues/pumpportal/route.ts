@@ -2,17 +2,15 @@ import { requireUser } from "@/lib/server/auth";
 import { HttpError } from "@/lib/server/env";
 import { jsonBody, route, str } from "@/lib/server/http";
 
-type Body = { publicKey: string; mint: string; name: string; symbol: string; uri: string; devBuy: number; pool: "pump" | "bonk" };
+type Body = { publicKey: string; mint: string; name: string; symbol: string; uri: string; devBuy: number };
 
 /**
- * Builds an unsigned create transaction through PumpPortal's local-transaction API.
- * pool "pump" → Pump.fun; pool "bonk" → LetsBonk's platform on Raydium LaunchLab.
+ * Builds an unsigned Pump.fun create transaction through PumpPortal's local-transaction API.
  * The client signs it with the fresh mint keypair and the user's wallet.
  */
 export const POST = route(async (req) => {
   await requireUser(req);
   const b = await jsonBody<Body>(req);
-  if (b.pool !== "pump" && b.pool !== "bonk") throw new HttpError(400, "Unknown pool.");
   const devBuy = Number(b.devBuy) || 0;
   if (devBuy < 0 || devBuy > 100) throw new HttpError(400, "Dev buy must be between 0 and 100 SOL.");
 
@@ -28,7 +26,7 @@ export const POST = route(async (req) => {
       amount: devBuy,
       slippage: 10,
       priorityFee: 0.0005,
-      pool: b.pool,
+      pool: "pump",
     }),
   });
   if (!res.ok) throw new HttpError(502, `PumpPortal: ${(await res.text()).slice(0, 200) || res.statusText}`);

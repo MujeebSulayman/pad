@@ -4,34 +4,28 @@ import { solanaSigner, tgUrl, xUrl, type Adapter, type LegCtx } from "./types";
 const SIGN = { id: "sign", label: "Sign transaction", detail: "Approve in your wallet" };
 const SEND = { id: "submit", label: "Broadcast & confirm", detail: "Simulating, then submitting to Solana" };
 
-/** Pump.fun and LaunchLab (via LetsBonk) through PumpPortal: the mint is a fresh keypair we co-sign with. */
-function pumpPortal(pool: "pump" | "bonk", program: string): Adapter {
-  return {
-    steps: () => [{ id: "build", label: "Build create transaction", detail: `PumpPortal · ${program}` }, SIGN, SEND],
-    run: async (ctx: LegCtx) => {
-      const sol = solanaSigner(ctx);
-      ctx.step("build");
-      const mint = await newMintSigner();
-      const { transaction } = await ctx.call<{ transaction: string }>("/api/venues/pumpportal", {
-        pool,
-        publicKey: sol.address,
-        mint: mint.address,
-        name: ctx.draft.name,
-        symbol: ctx.draft.symbol,
-        uri: ctx.meta.metadataUrl,
-        devBuy: Number(ctx.draft.devBuy) || 0,
-      });
-      ctx.step("sign");
-      const signed = await sol.signTransaction(await signWithMint(fromBase64(transaction), mint));
-      ctx.step("submit");
-      const tx = await sendAndConfirm(signed);
-      return { status: "success", creator: sol.address, mint: mint.address, tx };
-    },
-  };
-}
-
-export const pumpfun = pumpPortal("pump", "pump.fun program");
-export const launchlab = pumpPortal("bonk", "Raydium LaunchLab");
+/** Pump.fun through PumpPortal's local-transaction API: the mint is a fresh keypair we co-sign with. */
+export const pumpfun: Adapter = {
+  steps: () => [{ id: "build", label: "Build create transaction", detail: "PumpPortal · pump.fun program" }, SIGN, SEND],
+  run: async (ctx: LegCtx) => {
+    const sol = solanaSigner(ctx);
+    ctx.step("build");
+    const mint = await newMintSigner();
+    const { transaction } = await ctx.call<{ transaction: string }>("/api/venues/pumpportal", {
+      publicKey: sol.address,
+      mint: mint.address,
+      name: ctx.draft.name,
+      symbol: ctx.draft.symbol,
+      uri: ctx.meta.metadataUrl,
+      devBuy: Number(ctx.draft.devBuy) || 0,
+    });
+    ctx.step("sign");
+    const signed = await sol.signTransaction(await signWithMint(fromBase64(transaction), mint));
+    ctx.step("submit");
+    const tx = await sendAndConfirm(signed);
+    return { status: "success", creator: sol.address, mint: mint.address, tx };
+  },
+};
 
 /** Bags v2: register token info → fee-share config (creator takes 100%) → launch tx pre-signed by the mint. */
 export const bags: Adapter = {
