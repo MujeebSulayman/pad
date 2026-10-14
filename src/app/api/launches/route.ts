@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/server/auth";
 import { db } from "@/lib/server/db";
 import { HttpError } from "@/lib/server/env";
 import { jsonBody, optStr, route, str } from "@/lib/server/http";
-import { gatewayUrl } from "@/lib/server/ipfs";
+import { displayUrl } from "@/lib/server/ipfs";
 import { refreshMarketCaps } from "@/lib/server/market";
 import { verifyLaunchTx } from "@/lib/server/verify";
 
@@ -32,7 +32,7 @@ const toLaunch = (r: Row): Launch => ({
   chain: r.chain,
   name: r.name,
   symbol: r.symbol,
-  imageUrl: gatewayUrl(r.image_url),
+  imageUrl: displayUrl(r.image_url),
   createdAt: new Date(r.created_at).getTime(),
   status: r.status,
   txHash: r.tx_hash ?? "",

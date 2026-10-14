@@ -43,5 +43,11 @@ export async function pinRemoteImage(url: string): Promise<Pinned> {
   return pinFile(blob, `image.${type.split("/")[1]}`);
 }
 
-/** Gateway URL for an ipfs:// URI; anything else passes through. */
+/** Gateway URL for an ipfs:// URI; anything else passes through. For venues, which need an absolute URL. */
 export const gatewayUrl = (uri: string) => (uri.startsWith("ipfs://") ? `${IPFS_GATEWAY}/ipfs/${uri.slice(7)}` : uri);
+
+/** Where our own pages load an image from: our cached /api/ipfs route for anything on IPFS. */
+export const displayUrl = (uri: string) => {
+  const cid = uri ? cidOf(uri) : null;
+  return cid ? `/api/ipfs/${cid}` : uri;
+};

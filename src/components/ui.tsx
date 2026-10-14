@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/format";
 import { previewSrc } from "@/lib/preview";
 import { ChevronDown, X } from "./icons";
@@ -265,11 +265,14 @@ export function Modal({
 
 /** Square token avatar: the image if there is one, otherwise the first two letters of the symbol. */
 export function TokenAvatar({ imageUrl, symbol, className }: { imageUrl: string; symbol: string; className?: string }) {
+  // Falls back to the letters if the image can't load, instead of a broken-image icon.
+  const [failed, setFailed] = useState<string | null>(null);
+  const src = imageUrl ? previewSrc(imageUrl) : "";
   return (
     <span className={cn("grid shrink-0 place-items-center overflow-hidden bg-[var(--field-bg)] font-mono text-mute shadow-[var(--edge-sm)]", className)}>
-      {imageUrl ? (
+      {src && failed !== src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={previewSrc(imageUrl)} alt="" className="h-full w-full object-cover" />
+        <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" onError={() => setFailed(src)} />
       ) : (
         symbol.slice(0, 2) || "??"
       )}
