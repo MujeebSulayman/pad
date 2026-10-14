@@ -3,7 +3,7 @@ import type { Adapter } from "./types";
 
 /** Review venues: the issuance packet is saved to MirrorPad's database and shows as pending. */
 export const review: Adapter = {
-  steps: () => [{ id: "submit", label: "Submit for review", detail: "Saving the issuance packet" }],
+  steps: () => [{ id: "submit", label: "Prepare submission", detail: "Packaging the issuer details for the venue's review" }],
   run: async (ctx) => {
     const creator = ctx.pad.chain === "solana" ? ctx.signer.solana?.address : ctx.signer.evm?.address;
     if (!creator) throw new Error("Connect a wallet for this chain to submit.");
