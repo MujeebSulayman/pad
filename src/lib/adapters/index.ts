@@ -1,6 +1,5 @@
 import { CHAIN, type Launchpad } from "../data";
-import { clanker, flaunch, fourmeme, pancakeswap, robinhoodMint, zora } from "./evm";
-import { review } from "./offchain";
+import { bscIssuance, clanker, flaunch, fourmeme, pancakeswap, robinhoodIssuance, robinhoodMint, zora } from "./evm";
 import { bags, pumpfun } from "./solana";
 import type { Adapter, StepDef } from "./types";
 
@@ -8,7 +7,7 @@ export type { Adapter, LegCtx, LegResult, Meta, StepDef } from "./types";
 
 /** Venue id → the adapter that launches there. */
 export const ADAPTERS: Record<string, Adapter> = {
-  "robinhood-listings": review,
+  "robinhood-listings": robinhoodIssuance,
   "robinhood-chain-mint": robinhoodMint,
   pumpfun,
   bags,
@@ -17,7 +16,7 @@ export const ADAPTERS: Record<string, Adapter> = {
   flaunch,
   fourmeme,
   pancakeswap,
-  "binance-alpha": review,
+  "binance-alpha": bscIssuance,
 };
 
 /** Every step of one leg: shared metadata steps, the venue's own, then indexing. */
@@ -29,11 +28,8 @@ export function stepsFor(pad: Launchpad, mirror: boolean): StepDef[] {
         { id: "validate", label: "Validate metadata", detail: "Checking name, symbol and socials" },
         { id: "upload", label: "Pin metadata", detail: "Uploading image and metadata to IPFS" },
       ];
-  const tail: StepDef =
-    pad.integration === "review"
-      ? { id: "index", label: "Save submission", detail: "Recording it as pending in MirrorPad's feed" }
-      : mirror
-        ? { id: "index", label: "Link to the mirror set", detail: "Verifying on-chain and grouping with the primary deployment" }
-        : { id: "index", label: "Index listing", detail: "Verifying on-chain and saving to the feed" };
+  const tail: StepDef = mirror
+    ? { id: "index", label: "Link to the mirror set", detail: "Verifying on-chain and grouping with the primary deployment" }
+    : { id: "index", label: "Index listing", detail: "Verifying on-chain and saving to the feed" };
   return [...head, ...ADAPTERS[pad.id].steps(chain), tail];
 }

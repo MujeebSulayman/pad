@@ -211,10 +211,10 @@ export function MobileView(p: ViewProps) {
                     <span className="font-mono text-[18px] font-semibold tabular-nums text-accent">${usd.toFixed(2)}</span>
                   </div>
                 </div>
-                {p.pad.status !== "live" && (
+                {p.pad.status === "beta" && (
                   <div className="mt-3">
                     <Notice tone="blue" icon={<Alert size={14} />}>
-                      {p.pad.name} reviews submissions before they go live. This launch will be queued as pending.
+                      {p.pad.name} is in beta. Verify the deployment on the explorer before promoting it.
                     </Notice>
                   </div>
                 )}

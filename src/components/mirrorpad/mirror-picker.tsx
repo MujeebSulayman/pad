@@ -54,7 +54,7 @@ export function MirrorPicker({ primaryChain, mirrors, onChange }: { primaryChain
                   {pads.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
-                      {p.status !== "live" ? " — review" : ""}
+                      {p.status === "beta" ? " — beta" : ""}
                     </option>
                   ))}
                 </Select>

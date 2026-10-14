@@ -37,9 +37,6 @@ export function costLegs(pad: Launchpad, draft: Draft, mirrors: Mirrors, prices:
 
 export const totalUsd = (legs: CostLeg[]) => legs.reduce((s, l) => s + l.usd, 0);
 
-/** Venues that queue submissions for review instead of trading at once. */
-export const isReviewed = (pad: Launchpad) => pad.integration === "review";
-
 export type Validation = {
   errors: Partial<Record<DraftKey, string>>;
   /** Required fields still empty. */
@@ -48,7 +45,7 @@ export type Validation = {
   issues: string[];
 };
 
-export function validate(draft: Draft, pad: Launchpad, mirrors: Mirrors = {}): Validation {
+export function validate(draft: Draft, pad: Launchpad): Validation {
   const errors: Partial<Record<DraftKey, string>> = {};
   const missing: string[] = [];
 
@@ -74,11 +71,8 @@ export function validate(draft: Draft, pad: Launchpad, mirrors: Mirrors = {}): V
     if ((field === "issuerEntity" || field === "jurisdiction") && !value) missing.push(FIELD_META[field as ExtraField].label);
   }
 
-  // Every on-chain venue puts the image in its metadata; mirrors reuse the same one.
-  const needsImage = [pad, ...Object.values(mirrors).map((id) => PAD[id!])].some((p) => p.integration === "onchain");
-  if (!draft.imageUrl.trim()) {
-    if (needsImage) missing.push("Image");
-  } else if (!/^(https|ipfs):\/\//.test(draft.imageUrl)) errors.imageUrl = "Must be an https:// or ipfs:// URL.";
+  // Every venue puts the image in the token's metadata; mirrors reuse the same one.
+  if (!draft.imageUrl.trim()) missing.push("Image"); else if (!/^(https|ipfs):\/\//.test(draft.imageUrl)) errors.imageUrl = "Must be an https:// or ipfs:// URL.";
 
   const blocked = missing.length > 0 || Object.keys(errors).length > 0;
   return { errors, missing, issues: blocked ? [...missing, ...Object.values(errors).map(String)] : [] };

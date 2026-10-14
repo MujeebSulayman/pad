@@ -167,17 +167,15 @@ export function LaunchSummary({
         </Notice>
       )}
 
-      {pad.status !== "live" && (
+      {pad.status === "beta" && (
         <Notice tone="blue" icon={<Bolt size={14} />}>
-          {pad.status === "approval" || pad.status === "waitlist"
-            ? "This venue reviews submissions before they go live. Your launch will be queued as pending rather than trading immediately."
-            : "This adapter is in beta. Verify the deployment on the explorer before promoting it."}
+          This adapter is in beta. Verify the deployment on the explorer before promoting it.
         </Notice>
       )}
 
       {connected ? (
         <Button variant="accent" size="lg" full disabled={!ready} onClick={onLaunch} prefix={<Rocket size={16} />}>
-          {multi ? `Launch on ${legs.length} chains` : pad.status === "live" ? `Launch on ${pad.name}` : `Submit to ${pad.name}`}
+          {multi ? `Launch on ${legs.length} chains` : `Launch on ${pad.name}`}
         </Button>
       ) : (
         <Button variant="primary" size="lg" full onClick={onConnect} prefix={<Wallet size={16} />}>

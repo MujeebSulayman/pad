@@ -60,7 +60,7 @@ export function MirrorPad() {
   const address = wallet.addressFor(chain);
   // Simulated addresses don't exist on-chain, so only real wallets get a balance lookup.
   const balance = useBalance(chain, address, wallet.mode === "privy");
-  const { errors, issues } = useMemo(() => validate(draft, pad, mirrors), [draft, pad, mirrors]);
+  const { errors, issues } = useMemo(() => validate(draft, pad), [draft, pad]);
 
   // Toast on connect / disconnect, but not when a saved session is restored on load.
   const wasConnected = useRef<boolean | null>(null);

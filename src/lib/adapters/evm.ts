@@ -175,10 +175,14 @@ function erc20(chain: EvmChain, next?: (token: Address) => { label: string; href
       const receipt = await waitFor(chain, tx);
       const token = receipt.contractAddress;
       if (!token || isAddressEqual(token, zeroAddress)) throw new Error("Deployment did not create a contract.");
-      return { status: "success", creator: evm.address, mint: token, tx, next: next?.(token) };
+      // Issuer fields the venue asks for are already in the pinned metadata; also keep them on the feed row.
+      const details = Object.fromEntries((["issuerEntity", "jurisdiction"] as const).filter((f) => ctx.pad.fields.includes(f) && d[f].trim()).map((f) => [f, d[f].trim()]));
+      return { status: "success", creator: evm.address, mint: token, tx, details, next: next?.(token) };
     },
   };
 }
 
 export const robinhoodMint = erc20("robinhood");
+export const robinhoodIssuance = erc20("robinhood");
+export const bscIssuance = erc20("bsc", (token) => ({ label: "Seed a PancakeSwap pool", href: `https://pancakeswap.finance/add/BNB/${token}?chain=bsc` }));
 export const pancakeswap = erc20("bsc", (token) => ({ label: "Seed a PancakeSwap pool", href: `https://pancakeswap.finance/add/BNB/${token}?chain=bsc` }));

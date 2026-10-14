@@ -18,8 +18,8 @@ export type LegCtx = {
 };
 
 export type LegResult = {
-  /** success: confirmed on-chain. pending: submitted for review. */
-  status: "success" | "pending";
+  /** Every adapter finishes with a confirmed on-chain launch. */
+  status: "success";
   creator: string;
   mint?: string;
   tx?: string;

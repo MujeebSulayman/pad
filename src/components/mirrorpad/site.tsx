@@ -100,14 +100,14 @@ const FAQS: [string, string][] = [
   ["Is a mirror a bridged token?", "No. Each chain gets its own contract and its own liquidity. Mirrors share a name, symbol, description and image — supply is not shared."],
   ["How many times do I sign?", "At least once per chain in the run. Some venues add a step: Four.meme asks for a login signature, and Bags has a fee-share config transaction before the launch."],
   [
-    "Why do some launches show “In review”?",
-    "Some venues, like Robinhood Listings, review submissions before they go live. Those launches are queued as pending instead of trading at once.",
+    "Will my token be listed in the Robinhood app or on Binance Alpha?",
+    "Not automatically. Robinhood Issuance and BSC Issuance deploy your token on-chain with the issuer details on record, which is what those programs look for, but app and exchange listings are decided by Robinhood and Binance.",
   ],
   ["Are the fees live quotes?", "No. Fees, curve parameters and graduation thresholds are editable defaults, not live quotes from each venue. Check the venue before you rely on them."],
   [
     "Does anything hit mainnet?",
     PRIVY_APP_ID
-      ? "Yes. Once you sign in, every launch is a real mainnet transaction signed by your own wallet. Review venues (Robinhood Listings, Binance Alpha) submit your token for review instead of deploying it."
+      ? "Yes. Once you sign in, every launch is a real mainnet transaction signed by your own wallet, and it's live as soon as it confirms."
       : "Not in this demo build. Without a wallet provider configured, every run is simulated end to end.",
   ],
 ];

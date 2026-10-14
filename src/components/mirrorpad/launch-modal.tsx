@@ -5,7 +5,7 @@ import { ADAPTERS, type LegResult, type Meta } from "@/lib/adapters";
 import { api, ApiError } from "@/lib/api";
 import { CHAIN, type Draft, type Launch, type Launchpad, type Mirrors } from "@/lib/data";
 import { cn, shortAddr } from "@/lib/format";
-import { buildLegs, buildSteps, isReviewed, stepDuration, type Step } from "@/lib/launch";
+import { buildLegs, buildSteps, stepDuration, type Step } from "@/lib/launch";
 import { ArrowUpRight, Alert, ChainMark, Check, Copy } from "../icons";
 import { useToast } from "../toast";
 import { Badge, Button, Modal, Spinner, TokenAvatar } from "../ui";
@@ -79,6 +79,8 @@ export function LaunchModal({
         website: d.website,
         twitter: d.twitter,
         telegram: d.telegram,
+        // Only sent when a venue in the run asks for them (the issuance venues).
+        ...(legs.some((l) => l.pad.fields.includes("issuerEntity")) && { issuerEntity: d.issuerEntity, jurisdiction: d.jurisdiction }),
       });
       return { imageUri: r.image.uri, imageUrl: r.image.url, metadataUri: r.metadata.uri, metadataUrl: r.metadata.url };
     };
@@ -159,7 +161,7 @@ export function LaunchModal({
       setTimeout(() => {
         const d = snap.draft;
         const group = `mg-${Date.now()}`;
-        const results: Outcome[] = legs.map((l) => ({ status: isReviewed(l.pad) ? "pending" : "success", mint: l.mint, tx: l.tx }));
+        const results: Outcome[] = legs.map((l) => ({ status: "success", mint: l.mint, tx: l.tx }));
         setOutcomes(results);
         setDone(true);
         onComplete(
@@ -171,10 +173,10 @@ export function LaunchModal({
               symbol: d.symbol,
               imageUrl: d.imageUrl,
               createdAt: Date.now(),
-              status: isReviewed(l.pad) ? "pending" : "success",
+              status: "success",
               txHash: l.tx,
               mintAddress: l.mint,
-              marketCapUsd: isReviewed(l.pad) ? 0 : 4200 + 3800 * (Number(d.devBuy) || 0),
+              marketCapUsd: 4200 + 3800 * (Number(d.devBuy) || 0),
               mirrorGroup: multi ? group : undefined,
               mirrorCount: multi ? legs.length : undefined,
             })),
@@ -194,7 +196,7 @@ export function LaunchModal({
       symbol: snap.draft.symbol,
       imageUrl,
       createdAt: Date.now(),
-      status: r.status === "success" ? "success" : "pending",
+      status: "success",
       txHash: r.tx ?? "",
       mintAddress: r.mint ?? "",
       marketCapUsd: 0,
@@ -212,17 +214,14 @@ export function LaunchModal({
       toast({ tone: "error", title: `${d.symbol} launch failed`, description: results[0]?.error?.slice(0, 160) });
       return;
     }
-    const anyReview = results.some((r) => r.status === "pending");
     toast({
-      tone: ok < results.length ? "info" : anyReview ? "info" : "success",
+      tone: ok < results.length ? "info" : "success",
       title:
         ok < results.length
           ? `${ok} of ${results.length} legs launched`
           : multi
             ? `${d.symbol} mirrored across ${legs.length} chains`
-            : results[0].status === "pending"
-              ? `${d.symbol} submitted for review`
-              : `${d.symbol} is live`,
+            : `${d.symbol} is live`,
       description: multi ? legs.map((l) => CHAIN[l.chain].shortName).join(", ") : `${CHAIN[legs[0].chain].name} via ${legs[0].pad.name}.`,
       action,
     });
@@ -246,9 +245,7 @@ export function LaunchModal({
         ? `${legs.length - failed} of ${legs.length} legs launched`
         : multi
           ? `Mirrored to ${legs.length} chains`
-          : only?.status === "pending"
-            ? "Submitted for review"
-            : "Launch complete"
+          : "Launch complete"
     : multi
       ? `Mirroring $${d.symbol}`
       : `Launching $${d.symbol}`;
@@ -258,9 +255,7 @@ export function LaunchModal({
       ? "Nothing was deployed. The failing step shows why."
       : multi
         ? `${d.name} has an independent deployment on each chain that succeeded. Liquidity is not shared between them.`
-        : only?.status === "pending"
-          ? `${p.name} has your issuance packet. Status will flip to live once it clears review.`
-          : `${d.name} is deployed on ${CHAIN[p.chain].name}.`
+        : `${d.name} is deployed on ${CHAIN[p.chain].name}.`
     : multi
       ? `Running ${legs.length} adapters — expect a wallet prompt per chain.`
       : `Running the ${p.name} adapter against ${CHAIN[p.chain].network}.`;
@@ -396,7 +391,6 @@ export function LaunchModal({
                       <ChainMark chain={chain.mark} size={11} />
                     </span>
                     <span className="font-semibold text-fg">{chain.shortName}</span>· {leg.pad.name}
-                    {o.status === "pending" && <span className="text-t-amber">· in review</span>}
                     {o.status === "failed" && <span className="text-bad">· failed</span>}
                   </p>
                   {o.error && <p className="mt-1 break-words text-[12px] text-bad">{o.error.slice(0, 240)}</p>}

@@ -20,8 +20,7 @@ export type Chain = {
   note: string;
 };
 
-export type PadStatus = "live" | "beta" | "waitlist" | "approval";
-export type Integration = "onchain" | "review";
+export type PadStatus = "live" | "beta";
 export type Curve = "listing" | "fair-launch" | "bonding" | "auction";
 
 export type FieldKey =
@@ -49,8 +48,6 @@ export type Launchpad = {
   tagline: string;
   description: string;
   status: PadStatus;
-  /** How MirrorPad launches here: a transaction it builds and the user signs, or a review submission. */
-  integration: Integration;
   url: string;
   tradeFeeBps: number;
   createFee: number;
@@ -113,7 +110,7 @@ export const CHAINS: Chain[] = [
     accent: "var(--c-green)",
     mark: "robinhood",
     avgBlockSec: 0.25,
-    note: "Permissioned issuance. Listings pass a compliance review before they go live.",
+    note: "Robinhood's Arbitrum Orbit L2. Tokens go live as soon as they're deployed.",
   },
   {
     id: "solana",
@@ -160,22 +157,21 @@ export const BASE_FIELDS: FieldKey[] = ["name", "symbol", "description", "image"
 export const LAUNCHPADS: Launchpad[] = [
   {
     id: "robinhood-listings",
-    name: "Robinhood Listings",
+    name: "Robinhood Issuance",
     chain: "robinhood",
-    tagline: "Reviewed listing into the Robinhood app",
+    tagline: "Issuer-registered ERC-20 on Robinhood Chain",
     description:
-      "Submit an asset for review and, once cleared, surface it to retail order flow inside the Robinhood app. Issuance happens on Robinhood Chain with a registered issuing entity.",
-    status: "approval",
-    integration: "review",
-    url: "https://robinhood.com",
-    tradeFeeBps: 35,
+      "Deploy a fixed-supply ERC-20 on Robinhood Chain with the issuing entity and jurisdiction recorded in its metadata. Live as soon as it confirms. Trading inside the Robinhood app is Robinhood's own decision and isn't part of this launch.",
+    status: "live",
+    url: "https://explorer.robinhood.com",
+    tradeFeeBps: 0,
     createFee: 0,
     graduationUsd: null,
-    curve: "listing",
+    curve: "fair-launch",
     creatorRevBps: 0,
-    features: ["Compliance review", "Retail distribution", "Registered issuer", "Fiat on-ramp"],
-    fields: [...BASE_FIELDS, "supply", "issuerEntity", "jurisdiction", "vestingMonths", "website"],
-    liquidityDest: "Robinhood order book",
+    features: ["Issuer on record", "Jurisdiction on record", "Instant deploy", "Orbit L2 fees"],
+    fields: [...BASE_FIELDS, "supply", "issuerEntity", "jurisdiction", "website"],
+    liquidityDest: "Self-provisioned pool",
   },
   {
     id: "robinhood-chain-mint",
@@ -185,7 +181,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Deploy a standard ERC-20 straight onto Robinhood Chain without a listing review. Trades on-chain only until an app listing is approved separately.",
     status: "beta",
-    integration: "onchain",
     url: "https://robinhood.com",
     tradeFeeBps: 30,
     createFee: 0.0004,
@@ -204,7 +199,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Mint against a fixed bonding curve with no seed liquidity. Once the curve fills, the token and its liquidity migrate to a DEX pool and the LP is burned.",
     status: "live",
-    integration: "onchain",
     url: "https://pump.fun",
     tradeFeeBps: 100,
     createFee: 0.02,
@@ -223,7 +217,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "A curve launch where trading fees split between the deployer and a claimed social handle, so the person the token is about can earn without deploying it.",
     status: "live",
-    integration: "onchain",
     url: "https://bags.fm",
     tradeFeeBps: 100,
     createFee: 0.02,
@@ -242,7 +235,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Content-backed coins where each post mints an ERC-20 with an automatic Uniswap v4 position. Trading fees split between creator and referrer.",
     status: "live",
-    integration: "onchain",
     url: "https://zora.co",
     tradeFeeBps: 100,
     createFee: 0,
@@ -261,7 +253,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "An agent-deployed ERC-20 factory. Tokens ship with a single-sided Uniswap v4 position and a fee stream claimable by the requesting account.",
     status: "live",
-    integration: "onchain",
     url: "https://clanker.world",
     tradeFeeBps: 100,
     createFee: 0,
@@ -280,7 +271,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Memecoins with a revenue manager attached: route a share of every trade to buybacks, a treasury, or a split of addresses, set at launch.",
     status: "live",
-    integration: "onchain",
     url: "https://flaunch.gg",
     tradeFeeBps: 100,
     createFee: 0,
@@ -299,7 +289,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "The highest-volume fair-launch venue on BNB Chain. Curve fills in BNB and migrates into PancakeSwap with the LP locked.",
     status: "live",
-    integration: "onchain",
     url: "https://four.meme",
     tradeFeeBps: 100,
     createFee: 0.005,
@@ -318,7 +307,6 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Skip the curve: deploy the token, seed your own pool, and optionally run an initial farm offering to distribute supply against CAKE.",
     status: "live",
-    integration: "onchain",
     url: "https://pancakeswap.finance",
     tradeFeeBps: 25,
     createFee: 0.003,
@@ -331,22 +319,21 @@ export const LAUNCHPADS: Launchpad[] = [
   },
   {
     id: "binance-alpha",
-    name: "Binance Alpha",
+    name: "BSC Issuance",
     chain: "bsc",
-    tagline: "Pre-listing discovery surface",
+    tagline: "Issuer-registered ERC-20, Alpha-ready",
     description:
-      "Submit an already-deployed BSC token for the Alpha discovery surface inside Binance Wallet. Requires an existing pool and traction metrics.",
-    status: "waitlist",
-    integration: "review",
-    url: "https://www.binance.com/en/alpha",
+      "Deploy a fixed-supply token on BNB Chain with the issuing entity recorded in its metadata: the already-deployed token Binance Alpha asks for before you can apply. Live as soon as it confirms. Alpha selection is Binance's own decision.",
+    status: "live",
+    url: "https://bscscan.com",
     tradeFeeBps: 0,
     createFee: 0,
     graduationUsd: null,
-    curve: "listing",
+    curve: "fair-launch",
     creatorRevBps: 0,
-    features: ["Wallet distribution", "Airdrop campaigns", "Traction review", "Listing pipeline"],
-    fields: [...BASE_FIELDS, "website", "twitter", "telegram", "issuerEntity"],
-    liquidityDest: "Existing BSC pool",
+    features: ["Issuer on record", "Alpha-ready token", "Instant deploy", "Low BSC fees"],
+    fields: [...BASE_FIELDS, "supply", "issuerEntity", "website", "twitter", "telegram"],
+    liquidityDest: "Self-provisioned pool",
   },
 ];
 
@@ -357,8 +344,6 @@ export const padsOn = (chain: ChainId) => LAUNCHPADS.filter((p) => p.chain === c
 export const STATUS_LABEL: Record<PadStatus, string> = {
   live: "Live",
   beta: "Beta",
-  waitlist: "Waitlist",
-  approval: "Review required",
 };
 
 export const FIELD_META: Record<ExtraField, { label: string; hint: string; placeholder: string }> = {
@@ -420,7 +405,7 @@ export const SEED_LAUNCHES: SeedLaunch[] = [
   { id: "l1", launchpadId: "pumpfun", chain: "solana", name: "Halcyon", symbol: "HALO", imageUrl: "", status: "success", marketCapUsd: 412e3, minsAgo: 6 },
   { id: "l2", launchpadId: "clanker", chain: "base", name: "Driftwood", symbol: "DRIFT", imageUrl: "", status: "success", marketCapUsd: 88400, minsAgo: 24, mirrorGroup: "mg-seed-1", mirrorCount: 2 },
   { id: "l3", launchpadId: "fourmeme", chain: "bsc", name: "Driftwood", symbol: "DRIFT", imageUrl: "", status: "success", marketCapUsd: 31900, minsAgo: 51, mirrorGroup: "mg-seed-1", mirrorCount: 2 },
-  { id: "l4", launchpadId: "robinhood-listings", chain: "robinhood", name: "Northgate Index", symbol: "NGX", imageUrl: "", status: "pending", marketCapUsd: 0, minsAgo: 96 },
+  { id: "l4", launchpadId: "robinhood-listings", chain: "robinhood", name: "Northgate Index", symbol: "NGX", imageUrl: "", status: "success", marketCapUsd: 56400, minsAgo: 96 },
   { id: "l5", launchpadId: "bags", chain: "solana", name: "Tessellate", symbol: "TESS", imageUrl: "", status: "failed", marketCapUsd: 0, minsAgo: 140 },
   { id: "l6", launchpadId: "zora", chain: "base", name: "Pale Signal", symbol: "PALE", imageUrl: "", status: "success", marketCapUsd: 19200, minsAgo: 213 },
 ];

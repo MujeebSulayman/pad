@@ -69,30 +69,25 @@ type LegBody = {
   details?: Record<string, string>;
 };
 
-/** Extra fields a review venue requires when it asks for them. */
-const REVIEW_REQUIRED = ["issuerEntity", "jurisdiction"] as const;
+/** Issuer fields a venue requires when it asks for them (the issuance venues). */
+const ISSUER_REQUIRED = ["issuerEntity", "jurisdiction"] as const;
 
-const UUID =/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Records one leg of a launch run. Successful on-chain legs are verified against the chain first. */
+/** Records one confirmed launch leg, after verifying it against the chain. */
 export const POST = route(async (req) => {
   const userId = await requireUser(req);
   const b = await jsonBody<LegBody>(req);
   const pad = PAD[b.launchpadId];
   if (!pad) throw new HttpError(400, "Unknown launchpad.");
-  if (!["success", "pending", "failed"].includes(b.status)) throw new HttpError(400, "Invalid status.");
+  // Every venue deploys on-chain, so only confirmed launches are recorded.
+  if (b.status !== "success") throw new HttpError(400, "Only confirmed launches are recorded.");
   if (b.mirrorGroup && !UUID.test(b.mirrorGroup)) throw new HttpError(400, "Invalid mirror group.");
 
   const creator = str(b.creator, "creator", 64);
   const mint = optStr(b.mint, 64);
   const txHash = optStr(b.txHash, 100);
-
-  if (b.status === "success") {
-    if (pad.integration !== "onchain") throw new HttpError(400, `${pad.name} launches are recorded as pending, not live.`);
-    if (!mint || !txHash) throw new HttpError(400, "A live launch needs its token address and transaction.");
-    await verifyLaunchTx(pad.chain, txHash, creator, mint);
-  }
-  if (b.status === "pending" && pad.integration !== "review") throw new HttpError(400, "Only review submissions are recorded as pending.");
+  if (!mint || !txHash) throw new HttpError(400, "A launch needs its token address and transaction.");
 
   const details = Object.fromEntries(
     Object.entries(b.details ?? {})
@@ -100,14 +95,12 @@ export const POST = route(async (req) => {
       .slice(0, 20)
       .map(([k, v]) => [k.slice(0, 40), v.slice(0, 500)]),
   );
-
-  // Review submissions must carry the same required fields the form enforces (see validate in lib/launch).
-  if (pad.integration === "review" && b.status === "pending") {
-    if (!optStr(b.token?.description)) throw new HttpError(400, "Description is required.");
-    for (const f of REVIEW_REQUIRED) {
-      if (pad.fields.includes(f) && !details[f]?.trim()) throw new HttpError(400, `${FIELD_META[f].label} is required for ${pad.name}.`);
-    }
+  // Same required issuer fields the form enforces (see validate in lib/launch).
+  for (const f of ISSUER_REQUIRED) {
+    if (pad.fields.includes(f) && !details[f]?.trim()) throw new HttpError(400, `${FIELD_META[f].label} is required for ${pad.name}.`);
   }
+
+  await verifyLaunchTx(pad.chain, txHash, creator, mint);
 
   const sql = await db();
   const [row] = (await sql`

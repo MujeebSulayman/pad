@@ -9,7 +9,7 @@ import { Badge, type Tone } from "../ui";
 export type Scope = "chain" | "all";
 export type Sort = "default" | "cheapest" | "creator";
 
-export const STATUS_TONE: Record<PadStatus, Tone> = { live: "green", beta: "blue", waitlist: "amber", approval: "purple" };
+export const STATUS_TONE: Record<PadStatus, Tone> = { live: "green", beta: "blue" };
 
 export const SORTS: { id: Sort; label: string }[] = [
   { id: "default", label: "Recommended" },
