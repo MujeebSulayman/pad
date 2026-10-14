@@ -1,5 +1,5 @@
 import { BASE_FIELDS, DRAFT_KEY } from "../data";
-import { xUrl, type Adapter } from "./types";
+import type { Adapter } from "./types";
 
 /** Review venues: the issuance packet is saved to MirrorPad's database and shows as pending. */
 export const review: Adapter = {
@@ -16,19 +16,6 @@ export const review: Adapter = {
   },
 };
 
-/** Believe launches from a post on X: we prefill it, the user posts it. */
-export const believe: Adapter = {
-  steps: () => [{ id: "post", label: "Post to launch", detail: "Opens X with the launch post prefilled" }],
-  run: async (ctx) => {
-    ctx.step("post");
-    const d = ctx.draft;
-    const text = `@launchacoin $${d.symbol} + ${d.name}${d.website ? `\n${d.website}` : ""}`;
-    const href = `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
-    window.open(href, "_blank", "noopener");
-    return { status: "handoff", creator: xUrl(d.twitter) || "x", next: { label: "Open the post on X", href } };
-  },
-};
-
 /** Venues with no wallet-signable creation API: the launch is finished in the venue's own app. */
 function openVenue(detail: string): Adapter {
   return {
@@ -42,4 +29,10 @@ function openVenue(detail: string): Adapter {
 }
 
 export const virtuals = openVenue("Agent creation happens in the Virtuals app");
+/**
+ * Believe launches by replying to a post from @launchcoin on X, or from its own app. There's no
+ * launch API (its public API only covers existing tokens), and its rules have changed more than once,
+ * so we send the user to Believe rather than prefilling a post that may be stale.
+ */
+export const believe = openVenue("Reply to a @launchcoin post on X, or use the Believe app");
 export const launchlab = openVenue("Curve setup happens in Raydium's LaunchLab app");
