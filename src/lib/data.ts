@@ -1,5 +1,5 @@
 /*
- * The MirrorPad catalogue: four chains, thirteen launchpads, the per-venue form fields,
+ * The MirrorPad catalogue: four chains, twelve launchpads, the per-venue form fields,
  * reference prices and the seeded activity feed. Every number here is an editable default,
  * not a live quote from the venue.
  */
@@ -235,25 +235,6 @@ export const LAUNCHPADS: Launchpad[] = [
     liquidityDest: "Meteora DBC",
   },
   {
-    id: "believe",
-    name: "Believe",
-    chain: "solana",
-    tagline: "Launch from a post",
-    description:
-      "Tokenize by posting a ticker at the launch handle. Built for products with real usage — fees route back to the builder rather than the first buyer.",
-    status: "live",
-    integration: "handoff",
-    url: "https://believe.app",
-    tradeFeeBps: 100,
-    createFee: 0,
-    graduationUsd: 1e5,
-    curve: "bonding",
-    creatorRevBps: 50,
-    features: ["Social trigger", "Builder revenue", "Internal curve", "Meteora migration"],
-    fields: [...BASE_FIELDS, "twitter", "website"],
-    liquidityDest: "Meteora DAMM v2",
-  },
-  {
     id: "raydium-launchlab",
     name: "Raydium LaunchLab",
     chain: "solana",
@@ -262,7 +243,7 @@ export const LAUNCHPADS: Launchpad[] = [
       "Set your own curve shape, quote asset and migration target, then land directly in a Raydium pool. The most tunable of the Solana venues.",
     status: "live",
     integration: "handoff",
-    url: "https://raydium.io/launchlab",
+    url: "https://raydium.io/launchpad/create/",
     tradeFeeBps: 100,
     createFee: 0.015,
     graduationUsd: 85e3,

@@ -107,7 +107,7 @@ const FAQS: [string, string][] = [
   [
     "Does anything hit mainnet?",
     PRIVY_APP_ID
-      ? "Yes. Once you sign in, every launch is a real mainnet transaction signed by your own wallet. Review venues and hand-off venues (Believe, Virtuals) don't deploy anything from here."
+      ? "Yes. Once you sign in, every launch is a real mainnet transaction signed by your own wallet. Review venues and hand-off venues (Virtuals, Raydium LaunchLab) don't deploy anything from here."
       : "Not in this demo build. Without a wallet provider configured, every run is simulated end to end.",
   ],
 ];

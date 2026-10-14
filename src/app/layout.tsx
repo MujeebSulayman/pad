@@ -10,7 +10,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MirrorPad — Launch once, mirror everywhere",
   description:
-    "Launch a token on Robinhood, Solana, Base or BNB Chain from one form — or mirror the same token across all four in a single run. Compare fees, curves and graduation thresholds across 13 venues before you sign.",
+    "Launch a token on Robinhood, Solana, Base or BNB Chain from one form — or mirror the same token across all four in a single run. Compare fees, curves and graduation thresholds across 12 venues before you sign.",
   applicationName: "MirrorPad",
   manifest: "/manifest.webmanifest",
   icons: { icon: { url: "/icon.svg", type: "image/svg+xml" } },

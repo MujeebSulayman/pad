@@ -29,10 +29,4 @@ function openVenue(detail: string): Adapter {
 }
 
 export const virtuals = openVenue("Agent creation happens in the Virtuals app");
-/**
- * Believe launches by replying to a post from @launchcoin on X, or from its own app. There's no
- * launch API (its public API only covers existing tokens), and its rules have changed more than once,
- * so we send the user to Believe rather than prefilling a post that may be stale.
- */
-export const believe = openVenue("Reply to a @launchcoin post on X, or use the Believe app");
 export const launchlab = openVenue("Curve setup happens in Raydium's LaunchLab app");
