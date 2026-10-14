@@ -19,6 +19,7 @@ function SimulatedWallet({ children }: { children: ReactNode }) {
       addressFor: (chain) => (connected ? mintAddress(chain, "wallet-session") : null),
       connect: () => setConnected(true),
       disconnect: () => setConnected(false),
+      signer: null,
     }),
     [connected],
   );
@@ -42,4 +43,4 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const LOADING: Wallet = { mode: "privy", ready: false, connected: false, addressFor: () => null, connect: () => {}, disconnect: () => {} };
+const LOADING: Wallet = { mode: "privy", ready: false, connected: false, addressFor: () => null, connect: () => {}, disconnect: () => {}, signer: null };

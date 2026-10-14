@@ -1,8 +1,9 @@
 "use client";
 
-import { CHAIN, PRICES, STATUS_LABEL, type Draft, type Launchpad, type Mirrors } from "@/lib/data";
+import { CHAIN, STATUS_LABEL, type Draft, type Launchpad, type Mirrors } from "@/lib/data";
 import { cn, fmtBps, fmtUsd } from "@/lib/format";
 import { costLegs, devBuyOf, gasFor, totalUsd } from "@/lib/launch";
+import { usePrices } from "../use-prices";
 import { Alert, Bolt, ChainMark, Receipt, Rocket, Wallet } from "../icons";
 import { Badge, Button, Notice, Row, TokenAvatar } from "../ui";
 import type { Balance } from "../wallet/use-balance";
@@ -68,9 +69,10 @@ export function LaunchSummary({
   onLaunch: () => void;
 }) {
   const chain = CHAIN[pad.chain];
-  const price = PRICES[chain.nativeToken] ?? 0;
+
   const ready = issues.length === 0;
-  const legs = costLegs(pad, draft, mirrors);
+  const prices = usePrices();
+  const legs = costLegs(pad, draft, mirrors, prices);
   const multi = legs.length > 1;
   const devBuy = devBuyOf(pad, draft);
   const gas = gasFor(pad.chain);

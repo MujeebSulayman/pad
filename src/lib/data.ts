@@ -21,6 +21,7 @@ export type Chain = {
 };
 
 export type PadStatus = "live" | "beta" | "waitlist" | "approval";
+export type Integration = "onchain" | "review" | "handoff";
 export type Curve = "listing" | "fair-launch" | "bonding" | "auction";
 
 export type FieldKey =
@@ -48,6 +49,8 @@ export type Launchpad = {
   tagline: string;
   description: string;
   status: PadStatus;
+  /** How MirrorPad launches here: a transaction it builds, a review submission, or a hand-off to the venue. */
+  integration: Integration;
   url: string;
   tradeFeeBps: number;
   createFee: number;
@@ -163,6 +166,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Submit an asset for review and, once cleared, surface it to retail order flow inside the Robinhood app. Issuance happens on Robinhood Chain with a registered issuing entity.",
     status: "approval",
+    integration: "review",
     url: "https://robinhood.com",
     tradeFeeBps: 35,
     createFee: 0,
@@ -181,6 +185,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Deploy a standard ERC-20 straight onto Robinhood Chain without a listing review. Trades on-chain only until an app listing is approved separately.",
     status: "beta",
+    integration: "onchain",
     url: "https://robinhood.com",
     tradeFeeBps: 30,
     createFee: 0.0004,
@@ -199,6 +204,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Mint against a fixed bonding curve with no seed liquidity. Once the curve fills, the token and its liquidity migrate to a DEX pool and the LP is burned.",
     status: "live",
+    integration: "onchain",
     url: "https://pump.fun",
     tradeFeeBps: 100,
     createFee: 0.02,
@@ -217,6 +223,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "A curve launch where trading fees split between the deployer and a claimed social handle, so the person the token is about can earn without deploying it.",
     status: "live",
+    integration: "onchain",
     url: "https://bags.fm",
     tradeFeeBps: 100,
     createFee: 0.02,
@@ -224,7 +231,7 @@ export const LAUNCHPADS: Launchpad[] = [
     curve: "bonding",
     creatorRevBps: 50,
     features: ["Fee splits", "Handle attribution", "Royalty claiming", "Curve launch"],
-    fields: [...BASE_FIELDS, "twitter", "devBuy", "creatorFeeBps"],
+    fields: [...BASE_FIELDS, "twitter", "website", "telegram", "devBuy"],
     liquidityDest: "Meteora DBC",
   },
   {
@@ -235,6 +242,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Tokenize by posting a ticker at the launch handle. Built for products with real usage — fees route back to the builder rather than the first buyer.",
     status: "live",
+    integration: "handoff",
     url: "https://believe.app",
     tradeFeeBps: 100,
     createFee: 0,
@@ -249,18 +257,19 @@ export const LAUNCHPADS: Launchpad[] = [
     id: "raydium-launchlab",
     name: "Raydium LaunchLab",
     chain: "solana",
-    tagline: "Configurable curve into Raydium",
+    tagline: "LaunchLab curve into Raydium",
     description:
-      "Set your own curve shape, quote asset and migration target, then land directly in a Raydium pool. The most tunable of the Solana venues.",
+      "A SOL-quoted LaunchLab bonding curve (launched through the LetsBonk platform config) that migrates straight into a Raydium pool once it fills.",
     status: "live",
+    integration: "onchain",
     url: "https://raydium.io/launchlab",
     tradeFeeBps: 100,
     createFee: 0.015,
     graduationUsd: 85e3,
     curve: "bonding",
     creatorRevBps: 10,
-    features: ["Custom curve", "Quote asset choice", "Raydium native", "Vesting support"],
-    fields: [...BASE_FIELDS, "supply", "website", "twitter", "devBuy", "vestingMonths"],
+    features: ["LaunchLab curve", "SOL quoted", "Raydium native", "Auto-migration"],
+    fields: [...BASE_FIELDS, "website", "twitter", "telegram", "devBuy"],
     liquidityDest: "Raydium CPMM",
   },
   {
@@ -271,6 +280,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Creator-first launches with locked team allocations and vesting, wired into Jupiter's router from the first trade for immediate aggregator reach.",
     status: "live",
+    integration: "onchain",
     url: "https://jup.ag/studio",
     tradeFeeBps: 100,
     createFee: 0.01,
@@ -278,7 +288,7 @@ export const LAUNCHPADS: Launchpad[] = [
     curve: "bonding",
     creatorRevBps: 50,
     features: ["Supply locks", "Linear vesting", "Router reach", "Anti-sniper"],
-    fields: [...BASE_FIELDS, "supply", "twitter", "website", "vestingMonths", "devBuy"],
+    fields: [...BASE_FIELDS, "website", "twitter", "telegram"],
     liquidityDest: "Meteora DBC",
   },
   {
@@ -289,6 +299,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Content-backed coins where each post mints an ERC-20 with an automatic Uniswap v4 position. Trading fees split between creator and referrer.",
     status: "live",
+    integration: "onchain",
     url: "https://zora.co",
     tradeFeeBps: 100,
     createFee: 0,
@@ -307,6 +318,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "An agent-deployed ERC-20 factory. Tokens ship with a single-sided Uniswap v4 position and a fee stream claimable by the requesting account.",
     status: "live",
+    integration: "onchain",
     url: "https://clanker.world",
     tradeFeeBps: 100,
     createFee: 0,
@@ -314,7 +326,7 @@ export const LAUNCHPADS: Launchpad[] = [
     curve: "fair-launch",
     creatorRevBps: 40,
     features: ["Agent deploy", "Single-sided LP", "Fee claiming", "Vault + vesting"],
-    fields: [...BASE_FIELDS, "supply", "twitter", "vestingMonths", "creatorFeeBps"],
+    fields: [...BASE_FIELDS, "website", "twitter", "devBuy"],
     liquidityDest: "Uniswap v4",
   },
   {
@@ -325,6 +337,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Memecoins with a revenue manager attached: route a share of every trade to buybacks, a treasury, or a split of addresses, set at launch.",
     status: "live",
+    integration: "onchain",
     url: "https://flaunch.gg",
     tradeFeeBps: 100,
     createFee: 0,
@@ -332,7 +345,7 @@ export const LAUNCHPADS: Launchpad[] = [
     curve: "fair-launch",
     creatorRevBps: 100,
     features: ["Programmable fees", "Auto buyback", "Fair launch window", "Treasury routing"],
-    fields: [...BASE_FIELDS, "supply", "creatorFeeBps", "website", "twitter"],
+    fields: [...BASE_FIELDS, "creatorFeeBps", "website", "twitter"],
     liquidityDest: "Uniswap v4",
   },
   {
@@ -343,6 +356,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Bond an AI agent into its own token. The agent's inference and revenue are tied to the token, with a genesis window before the pool opens.",
     status: "live",
+    integration: "handoff",
     url: "https://app.virtuals.io",
     tradeFeeBps: 100,
     createFee: 0.0025,
@@ -350,7 +364,7 @@ export const LAUNCHPADS: Launchpad[] = [
     curve: "bonding",
     creatorRevBps: 30,
     features: ["Agent identity", "Genesis window", "Points allocation", "Revenue accrual"],
-    fields: [...BASE_FIELDS, "website", "twitter", "devBuy", "vestingMonths"],
+    fields: [...BASE_FIELDS, "website", "twitter"],
     liquidityDest: "Uniswap v2",
   },
   {
@@ -361,6 +375,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "The highest-volume fair-launch venue on BNB Chain. Curve fills in BNB and migrates into PancakeSwap with the LP locked.",
     status: "live",
+    integration: "onchain",
     url: "https://four.meme",
     tradeFeeBps: 100,
     createFee: 0.005,
@@ -379,6 +394,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Skip the curve: deploy the token, seed your own pool, and optionally run an initial farm offering to distribute supply against CAKE.",
     status: "live",
+    integration: "onchain",
     url: "https://pancakeswap.finance",
     tradeFeeBps: 25,
     createFee: 0.003,
@@ -397,6 +413,7 @@ export const LAUNCHPADS: Launchpad[] = [
     description:
       "Submit an already-deployed BSC token for the Alpha discovery surface inside Binance Wallet. Requires an existing pool and traction metrics.",
     status: "waitlist",
+    integration: "review",
     url: "https://www.binance.com/en/alpha",
     tradeFeeBps: 0,
     createFee: 0,

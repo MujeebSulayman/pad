@@ -2,30 +2,13 @@
 
 import { useMemo, type ReactNode } from "react";
 import { PrivyProvider, usePrivy, useWallets as useEvmWallets } from "@privy-io/react-auth";
-import { toSolanaWalletConnectors, useWallets as useSolanaWallets } from "@privy-io/react-auth/solana";
+import { toSolanaWalletConnectors, useSignTransaction, useWallets as useSolanaWallets } from "@privy-io/react-auth/solana";
 import { createSolanaRpc, createSolanaRpcSubscriptions } from "@solana/kit";
-import { defineChain, type Chain } from "viem";
-import { base, bsc } from "viem/chains";
-import { EVM_CHAIN_ID, ROBINHOOD_ENABLED, RPC_URL, SOLANA_CAIP2, SOLANA_WS_URL } from "@/lib/env";
+import { createWalletClient, custom, type Address } from "viem";
+import { EVM_CHAIN_ID, RPC_URL, SOLANA_CAIP2, SOLANA_WS_URL } from "@/lib/env";
+import { EVM_CHAINS, VIEM_CHAIN } from "@/lib/evm-chains";
 import { useTheme } from "../theme";
-import { WalletContext, type Wallet } from "./context";
-
-const withRpc = (chain: Chain, url: string): Chain => ({ ...chain, rpcUrls: { ...chain.rpcUrls, default: { http: [url] } } });
-
-const EVM_CHAINS: Chain[] = [
-  withRpc(base, RPC_URL.base),
-  withRpc(bsc, RPC_URL.bsc),
-  ...(ROBINHOOD_ENABLED
-    ? [
-        defineChain({
-          id: EVM_CHAIN_ID.robinhood!,
-          name: "Robinhood Chain",
-          nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-          rpcUrls: { default: { http: [RPC_URL.robinhood] } },
-        }),
-      ]
-    : []),
-];
+import { WalletContext, type Signer, type Wallet } from "./context";
 
 const solanaConnectors = toSolanaWalletConnectors();
 const solanaRpcs = {
@@ -38,21 +21,51 @@ const solanaRpcs = {
 
 /** Maps Privy's session and wallets onto the app's wallet context. */
 function Bridge({ children }: { children: ReactNode }) {
-  const { ready, authenticated, login, logout } = usePrivy();
+  const { ready, authenticated, login, logout, getAccessToken } = usePrivy();
   const { wallets: evm } = useEvmWallets();
   const { wallets: sol } = useSolanaWallets();
+  const { signTransaction } = useSignTransaction();
 
-  const value = useMemo<Wallet>(
-    () => ({
+  const value = useMemo<Wallet>(() => {
+    const connected = ready && authenticated;
+    const solWallet = sol[0];
+    const evmWallet = evm[0];
+    const signer: Signer | null = connected
+      ? {
+          getAccessToken,
+          solana: solWallet
+            ? {
+                address: solWallet.address,
+                signTransaction: async (transaction) =>
+                  (await signTransaction({ transaction, wallet: solWallet, chain: SOLANA_CAIP2 })).signedTransaction,
+              }
+            : null,
+          evm: evmWallet
+            ? {
+                address: evmWallet.address as Address,
+                walletClient: async (chain) => {
+                  await evmWallet.switchChain(EVM_CHAIN_ID[chain]);
+                  const provider = await evmWallet.getEthereumProvider();
+                  return createWalletClient({ account: evmWallet.address as Address, chain: VIEM_CHAIN[chain], transport: custom(provider) });
+                },
+                signMessage: async (message) => {
+                  const provider = await evmWallet.getEthereumProvider();
+                  return provider.request({ method: "personal_sign", params: [message, evmWallet.address] });
+                },
+              }
+            : null,
+        }
+      : null;
+    return {
       mode: "privy",
       ready,
-      connected: ready && authenticated,
-      addressFor: (chain) => (chain === "solana" ? (sol[0]?.address ?? null) : (evm[0]?.address ?? null)),
+      connected,
+      addressFor: (chain) => (chain === "solana" ? (solWallet?.address ?? null) : (evmWallet?.address ?? null)),
       connect: () => login(),
       disconnect: () => void logout(),
-    }),
-    [ready, authenticated, login, logout, evm, sol],
-  );
+      signer,
+    };
+  }, [ready, authenticated, login, logout, getAccessToken, evm, sol, signTransaction]);
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }

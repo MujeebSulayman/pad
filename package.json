@@ -18,9 +18,9 @@
     "clanker-sdk": "^4.2.19",
     "jose": "^6.2.12",
     "next": "^15.5.27",
-    "postgres": "^3.4.9",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "server-only": "^0.0.1",
     "viem": "^2.56.5"
   },
   "devDependencies": {

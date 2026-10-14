@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { CHAIN, CHAINS, LAUNCHPADS, STATUS_LABEL, padsOn } from "@/lib/data";
 import { cn, fmtBps, fmtUsd, shortAddr } from "@/lib/format";
 import { costLegs, totalUsd } from "@/lib/launch";
+import { usePrices } from "../use-prices";
 import { Alert, ChainMark, Check, ChevronRight, Grid, Layers, Logo, Receipt, Rocket, Wallet } from "../icons";
 import { ThemeButton } from "../theme";
 import { Badge, Button, Notice, Row } from "../ui";
@@ -73,7 +74,7 @@ function Intro({ kicker, title, children }: { kicker: string; title: ReactNode; 
 export function MobileView(p: ViewProps) {
   const [tab, setTab] = useState<Tab>("launch");
   const [step, setStep] = useState(0);
-  const legs = costLegs(p.pad, p.draft, p.mirrors);
+  const legs = costLegs(p.pad, p.draft, p.mirrors, usePrices());
   const multi = legs.length > 1;
   const usd = totalUsd(legs);
   const ready = p.issues.length === 0;

@@ -13,7 +13,9 @@ import {
   type ExtraField,
   type Launchpad,
   type Mirrors,
+  type NativeToken,
 } from "./data";
+import { stepsFor } from "./adapters";
 import { mintAddress, txHash } from "./format";
 
 /** Estimated network gas per deploy, in the chain's native asset. */
@@ -25,18 +27,18 @@ export const devBuyOf = (pad: Launchpad, draft: Draft) => (pad.fields.includes("
 export type CostLeg = { pad: Launchpad; chain: Chain; mirror: boolean; native: number; usd: number };
 
 /** One leg for the primary venue, then one per mirror. */
-export function costLegs(pad: Launchpad, draft: Draft, mirrors: Mirrors): CostLeg[] {
+export function costLegs(pad: Launchpad, draft: Draft, mirrors: Mirrors, prices: Record<NativeToken, number> = PRICES): CostLeg[] {
   return [{ pad, mirror: false }, ...Object.values(mirrors).map((id) => ({ pad: PAD[id!], mirror: true }))].map(({ pad, mirror }) => {
     const chain = CHAIN[pad.chain];
     const native = pad.createFee + devBuyOf(pad, draft) + gasFor(pad.chain);
-    return { pad, chain, mirror, native, usd: native * (PRICES[chain.nativeToken] ?? 0) };
+    return { pad, chain, mirror, native, usd: native * (prices[chain.nativeToken] ?? 0) };
   });
 }
 
 export const totalUsd = (legs: CostLeg[]) => legs.reduce((s, l) => s + l.usd, 0);
 
 /** Venues that queue submissions for review instead of trading at once. */
-export const isReviewed = (pad: Launchpad) => pad.status === "approval" || pad.status === "waitlist";
+export const isReviewed = (pad: Launchpad) => pad.integration === "review";
 
 export type Validation = {
   errors: Partial<Record<DraftKey, string>>;
@@ -46,7 +48,7 @@ export type Validation = {
   issues: string[];
 };
 
-export function validate(draft: Draft, pad: Launchpad): Validation {
+export function validate(draft: Draft, pad: Launchpad, mirrors: Mirrors = {}): Validation {
   const errors: Partial<Record<DraftKey, string>> = {};
   const missing: string[] = [];
 
@@ -72,7 +74,11 @@ export function validate(draft: Draft, pad: Launchpad): Validation {
     if ((field === "issuerEntity" || field === "jurisdiction") && !value) missing.push(FIELD_META[field as ExtraField].label);
   }
 
-  if (draft.imageUrl && !/^https?:\/\//.test(draft.imageUrl)) errors.imageUrl = "Must be an http(s) URL.";
+  // Every on-chain venue puts the image in its metadata; mirrors reuse the same one.
+  const needsImage = [pad, ...Object.values(mirrors).map((id) => PAD[id!])].some((p) => p.integration === "onchain");
+  if (!draft.imageUrl.trim()) {
+    if (needsImage) missing.push("Image");
+  } else if (!/^(https|ipfs):\/\//.test(draft.imageUrl)) errors.imageUrl = "Must be an https:// or ipfs:// URL.";
 
   const blocked = missing.length > 0 || Object.keys(errors).length > 0;
   return { errors, missing, issues: blocked ? [...missing, ...Object.values(errors).map(String)] : [] };
@@ -95,31 +101,8 @@ export function buildLegs(pad: Launchpad, draft: Draft, mirrors: Mirrors): Leg[]
   }));
 }
 
-/** The adapter pipeline for one leg. Mirrors reuse the primary's pinned metadata. */
-export function buildSteps(pad: Launchpad, mirror: boolean): Step[] {
-  const chain = CHAIN[pad.chain];
-  const steps: Step[] = mirror
-    ? [{ id: "reuse", label: "Reuse metadata", detail: "Same name, symbol, description and image", state: "pending" }]
-    : [
-        { id: "validate", label: "Validate metadata", detail: "Checking name, symbol and socials", state: "pending" },
-        { id: "upload", label: "Pin metadata", detail: pad.chain === "solana" ? "Uploading to Arweave" : "Uploading to IPFS", state: "pending" },
-      ];
-  steps.push(
-    { id: "simulate", label: "Simulate transaction", detail: `Dry-run against ${chain.network}`, state: "pending" },
-    { id: "sign", label: "Sign transaction", detail: "Awaiting wallet signature", state: "pending" },
-    { id: "submit", label: "Broadcast", detail: `Submitting to ${chain.shortName}`, state: "pending" },
-  );
-  if (pad.curve === "bonding") steps.push({ id: "curve", label: "Initialize bonding curve", detail: `Curve quoted in ${chain.nativeToken}`, state: "pending" });
-  else if (pad.curve === "listing") steps.push({ id: "review", label: "Queue for review", detail: "Submitting the issuance packet", state: "pending" });
-  else steps.push({ id: "pool", label: "Seed liquidity", detail: `Opening the ${pad.liquidityDest} position`, state: "pending" });
-  steps.push({
-    id: "index",
-    label: mirror ? "Link to the mirror set" : "Index listing",
-    detail: mirror ? "Grouping with the primary deployment" : "Publishing to the aggregator",
-    state: "pending",
-  });
-  return steps;
-}
+/** The adapter pipeline for one leg, every step pending. Mirrors reuse the primary's pinned metadata. */
+export const buildSteps = (pad: Launchpad, mirror: boolean): Step[] => stepsFor(pad, mirror).map((s) => ({ ...s, state: "pending" }));
 
-/** How long a step stays active before it completes, in ms. */
-export const stepDuration = (id: string) => (id === "sign" ? 1050 : id === "simulate" ? 760 : 560);
+/** How long a step stays active in the simulated run, in ms. */
+export const stepDuration = (id: string) => (id === "sign" ? 1050 : id === "build" ? 760 : 560);

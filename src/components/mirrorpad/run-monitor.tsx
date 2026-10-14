@@ -3,6 +3,7 @@
 import { CHAINS, PAD, type ChainId, type Draft, type Launchpad, type Mirrors } from "@/lib/data";
 import { cn } from "@/lib/format";
 import { costLegs, totalUsd } from "@/lib/launch";
+import { usePrices } from "../use-prices";
 import { ChainMark } from "../icons";
 import { TokenAvatar } from "../ui";
 
@@ -25,7 +26,8 @@ export function RunMonitor({
   issues: string[];
   onSelectChain: (c: ChainId) => void;
 }) {
-  const legs = costLegs(pad, draft, mirrors);
+  const prices = usePrices();
+  const legs = costLegs(pad, draft, mirrors, prices);
   const usd = totalUsd(legs);
   const venueOn = (id: ChainId) => (id === chain ? pad : mirrors[id] ? PAD[mirrors[id]!] : null);
   const ready = issues.length === 0;
