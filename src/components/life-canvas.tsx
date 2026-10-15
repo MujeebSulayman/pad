@@ -42,7 +42,7 @@ export function LifeCanvas() {
 
     const cellColor = () =>
       getComputedStyle(document.documentElement).getPropertyValue("--life-cell").trim() ||
-      "rgba(197,242,74,0.45)";
+      "rgba(201,206,214,0.32)";
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);

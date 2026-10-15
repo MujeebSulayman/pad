@@ -80,7 +80,7 @@ export default function PrivyWallet({ appId, children }: { appId: string; childr
         loginMethods: ["email", "wallet"],
         appearance: {
           theme: light ? "light" : "dark",
-          accentColor: light ? "#4c6b0a" : "#C5F24A",
+          accentColor: light ? "#c2410c" : "#FF5B1F",
           logo: "/icon.svg",
           walletChainType: "ethereum-and-solana",
         },

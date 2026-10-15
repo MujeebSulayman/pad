@@ -43,7 +43,7 @@ function TabBar({ tab, onChange, badge }: { tab: Tab; onChange: (t: Tab) => void
         aria-label="Launch"
         aria-current={tab === "launch" ? "page" : undefined}
         className="mx-1 !grid h-[52px] w-[52px] !flex-none place-items-center !rounded-[20px] !p-0 !text-[var(--accent-ink)]"
-        style={{ background: "var(--g-accent)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.5), 0 10px 24px -10px rgba(150,200,40,.6)" }}
+        style={{ background: "var(--g-accent)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.5), 0 10px 24px -10px rgba(255,91,31,.55)" }}
       >
         <Rocket size={22} strokeWidth={1.9} />
       </button>
