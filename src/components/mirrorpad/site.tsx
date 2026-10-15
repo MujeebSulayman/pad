@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
 import { PRIVY_APP_ID } from "@/lib/env";
 import { cn } from "@/lib/format";
-import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Receipt, Rocket, Wordmark, Shield, Sparkles, TelegramLogo, Wallet } from "../icons";
+import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Receipt, Rocket, Wordmark, Shield, Sparkles, TelegramLogo, Wallet, XLogo } from "../icons";
 import { LifeCanvas } from "../life-canvas";
 import { Reveal } from "../reveal";
 import { ThemeButton } from "../theme";
@@ -202,8 +202,11 @@ const COLUMNS = [
   },
 ];
 
-/** Footer social icons. Add X here once its link is known: { href: "https://x.com/…", label: "X", Icon: XLogo }. */
-const SOCIALS = [{ href: "https://t.me/Shadowpad_app", label: "Telegram", Icon: TelegramLogo }];
+/** Footer social icons. */
+const SOCIALS = [
+  { href: "https://x.com/use_shadowpad", label: "X", Icon: XLogo },
+  { href: "https://t.me/Shadowpad_app", label: "Telegram", Icon: TelegramLogo },
+];
 
 export function Footer() {
   return (
