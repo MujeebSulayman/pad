@@ -1,57 +1,31 @@
 import { Reveal } from "../reveal";
-import { Badge } from "../ui";
 import { Section, SectionHead } from "./section";
 
 /*
- * Holder revenue, shown with DEMO figures. None of these numbers are real earnings; the section is
- * labeled as such everywhere it appears. Replace DEMO with live data once fees are distributed.
+ * Holder revenue. Distributions haven't started, so every figure is $0. When they do, replace
+ * REVENUE with live data (e.g. read from the treasury and the payout transactions).
  */
 
-/** Seeded generator, so the demo figures are the same on every render and every visit. */
-function seeded(seed: number) {
-  let t = seed;
-  return () => {
-    t = (t + 0x6d2b79f5) | 0;
-    let x = Math.imul(t ^ (t >>> 15), 1 | t);
-    x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
-    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-const r = seeded(20261015);
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-/** Small, early-stage demo amounts: a few dollars a day. */
-const DAILY = DAYS.map((day) => ({ day, usd: Math.round((2.4 + r() * 9.6) * 100) / 100 }));
-const WEEK = Math.round(DAILY.reduce((s, d) => s + d.usd, 0) * 100) / 100;
-const HOLDERS = 46;
 
-export const DEMO = {
-  totalUsd: 187.42,
-  weekUsd: WEEK,
-  holders: HOLDERS,
-  avgPerHolder: Math.round((WEEK / HOLDERS) * 100) / 100,
-  daily: DAILY,
-  payouts: Array.from({ length: 5 }, (_, i) => ({
-    when: `${i * 6 + 2}h ago`,
-    usd: Math.round((0.8 + r() * 4.2) * 100) / 100,
-    chain: (["Solana", "Base", "BNB Chain", "Robinhood"] as const)[Math.floor(r() * 4)],
-    holders: Math.round(38 + r() * 8),
-  })),
+export const REVENUE = {
+  totalUsd: 0,
+  weekUsd: 0,
+  holders: 0,
+  avgPerHolder: 0,
+  daily: DAYS.map((day) => ({ day, usd: 0 })),
+  payouts: [] as { when: string; usd: number; chain: string; holders: number }[],
 };
 
-/** Dollars and cents, for amounts this small. */
 const money = (n: number) => `$${n.toFixed(2)}`;
-
-const peak = Math.max(...DEMO.daily.map((d) => d.usd));
-
-
+const peak = Math.max(...REVENUE.daily.map((d) => d.usd));
 
 function Tiles({ compact }: { compact?: boolean }) {
   const tiles = [
-    { label: "Distributed to holders", value: money(DEMO.totalUsd) },
-    { label: "Last 7 days", value: money(DEMO.weekUsd) },
-    { label: "Holders paid", value: DEMO.holders.toLocaleString() },
-    { label: "Avg per holder, 7d", value: money(DEMO.avgPerHolder) },
+    { label: "Distributed to holders", value: money(REVENUE.totalUsd) },
+    { label: "Last 7 days", value: money(REVENUE.weekUsd) },
+    { label: "Holders paid", value: REVENUE.holders.toLocaleString() },
+    { label: "Avg per holder, 7d", value: money(REVENUE.avgPerHolder) },
   ];
   return (
     <dl className={compact ? "grid grid-cols-2 gap-2.5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-4"}>
@@ -67,11 +41,12 @@ function Tiles({ compact }: { compact?: boolean }) {
 
 function WeekChart() {
   return (
-    <div className="flex h-44 items-end gap-2.5" role="img" aria-label={`Demo daily distributions: ${DEMO.daily.map((d) => `${d.day} ${money(d.usd)}`).join(", ")}`}>
-      {DEMO.daily.map((d) => (
+    <div className="flex h-44 items-end gap-2.5" role="img" aria-label={`Daily distributions: ${REVENUE.daily.map((d) => `${d.day} ${money(d.usd)}`).join(", ")}`}>
+      {REVENUE.daily.map((d) => (
         <div key={d.day} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
           <span className="font-mono text-[10.5px] text-mute">{money(d.usd)}</span>
-          <div className="w-full rounded-t-[10px] [background:var(--g-accent)] opacity-90" style={{ height: `${(d.usd / peak) * 100}%` }} />
+          {/* A 2px floor keeps an empty week visible as a baseline instead of collapsing. */}
+          <div className="w-full rounded-t-[10px] [background:var(--g-accent)] opacity-90" style={{ height: peak > 0 ? `max(2px, ${(d.usd / peak) * 100}%)` : "2px" }} />
           <span className="font-mono text-[11px] text-dim">{d.day}</span>
         </div>
       ))}
@@ -80,9 +55,12 @@ function WeekChart() {
 }
 
 function Payouts() {
+  if (REVENUE.payouts.length === 0) {
+    return <p className="py-6 text-center text-[13.5px] text-dim">No distributions yet.</p>;
+  }
   return (
     <ul className="flex flex-col">
-      {DEMO.payouts.map((p, i) => (
+      {REVENUE.payouts.map((p, i) => (
         <li key={i} className="flex items-center justify-between gap-3 border-b border-line py-3 last:border-b-0">
           <div className="min-w-0">
             <p className="text-[14px] font-semibold">{money(p.usd)} distributed</p>
@@ -110,7 +88,6 @@ export function RevenueSection() {
           </>
         }
       />
- 
       <Reveal variant="scale">
         <Tiles />
       </Reveal>
@@ -140,7 +117,6 @@ export function RevenueSection() {
 export function RevenuePanel() {
   return (
     <div className="flex flex-col gap-3">
-   
       <Tiles compact />
       <div className="tile rounded-[22px] p-4">
         <p className="label">Distributed per day · 7d</p>
@@ -151,7 +127,6 @@ export function RevenuePanel() {
       <div className="tile rounded-[22px] px-4 py-1">
         <Payouts />
       </div>
-   
     </div>
   );
 }
