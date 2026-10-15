@@ -58,6 +58,28 @@ export async function lamportsOf(address: string): Promise<bigint> {
   return BigInt(value);
 }
 
+/** The least a new (empty) Solana account may receive: below this the runtime rejects the transfer. */
+export const RENT_EXEMPT_MIN = 890_880n;
+const funded = new Map<string, number>();
+
+/**
+ * The part of `fee` that can safely be sent to `recipient` inside a user's transaction. An empty
+ * account can't receive less than the rent minimum, and a failing fee transfer would fail the user's
+ * whole trade, so in that one case the fee is skipped. Funded recipients are remembered for 10 minutes.
+ */
+export async function payableFee(recipient: string, fee: bigint): Promise<bigint> {
+  if (fee <= 0n || fee >= RENT_EXEMPT_MIN) return fee;
+  const seen = funded.get(recipient);
+  if (seen && Date.now() - seen < 10 * 60_000) return fee;
+  const bal = await lamportsOf(recipient).catch(() => 0n);
+  if (bal > 0n) {
+    funded.set(recipient, Date.now());
+    return fee;
+  }
+  console.warn(`Treasury ${recipient} is empty; skipping a ${fee}-lamport fee it can't receive yet. Fund it with ~0.002 SOL.`);
+  return 0n;
+}
+
 /**
  * Broadcasts a fully signed transaction (with preflight simulation) and waits for confirmation,
  * re-sending every few seconds until it lands or ~90 s pass. Returns the signature.

@@ -1,4 +1,5 @@
 import { isAddressEqual, type Address, type Hex } from "viem";
+import { TREASURY } from "@/lib/fees";
 import { requireUser } from "@/lib/server/auth";
 import { HttpError, ZORA_API_KEY } from "@/lib/server/env";
 import { jsonBody, route, str, venueFetch } from "@/lib/server/http";
@@ -26,6 +27,8 @@ export const POST = route(async (req) => {
       creator: str(b.creator, "creator", 64),
       name: str(b.name, "name", 64),
       symbol: str(b.symbol, "symbol", 16),
+      // Zora pays the platform referrer a share of the coin's trading rewards (rate set by Zora).
+      ...(TREASURY.evm && { platformReferrer: TREASURY.evm }),
     }),
   });
   const call = res.calls?.[0];

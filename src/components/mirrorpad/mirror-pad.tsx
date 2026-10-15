@@ -13,6 +13,7 @@ import { DesktopView } from "./desktop";
 import { LaunchModal } from "./launch-modal";
 import type { Scope, Sort } from "./launchpad-picker";
 import { MobileView } from "./mobile";
+import { TradeModal } from "./trade-modal";
 import type { ViewProps } from "./types";
 
 /** The whole app's state. Desktop (lg and up) and phones get different layouts over the same state. */
@@ -26,6 +27,7 @@ export function MirrorPad() {
   const [scope, setScope] = useState<Scope>("chain");
   const [sort, setSort] = useState<Sort>("default");
   const [mirrors, setMirrors] = useState<Mirrors>({});
+  const [trading, setTrading] = useState<Launch | null>(null);
   // The demo build shows sample rows; with real wallets the feed only holds verified launches.
   const [launches, setLaunches] = useState<Launch[]>(() => {
     if (PRIVY_APP_ID) return [];
@@ -122,12 +124,14 @@ export function MirrorPad() {
     onConnect: wallet.connect,
     onDisconnect: wallet.disconnect,
     onLaunch: launch,
+    onTrade: PRIVY_APP_ID ? setTrading : undefined,
   };
 
   return (
     <>
       <DesktopView {...view} />
       <MobileView {...view} />
+      {trading && <TradeModal key={trading.id} launch={trading} onClose={() => setTrading(null)} />}
       {runs > 0 && (
         <LaunchModal
           key={runs}

@@ -165,7 +165,7 @@ export function DesktopView(p: ViewProps) {
               </>
             }
           />
-          <LaunchesTable rows={p.launches} />
+          <LaunchesTable rows={p.launches} onTrade={p.onTrade} />
         </Section>
 
         <Faq />

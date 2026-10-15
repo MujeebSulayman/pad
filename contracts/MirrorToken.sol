@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-/// Fixed-supply ERC-20: the whole supply is minted to `owner_` at deploy. No admin, no mint, no tax.
+/// Fixed-supply ERC-20 minted at deploy: `platformBps_` of the supply to `platform_` (MirrorPad's
+/// share), the rest to `owner_`. No admin, no later minting, no tax.
 contract MirrorToken {
     string public name;
     string public symbol;
@@ -16,14 +17,29 @@ contract MirrorToken {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, uint256 supply_, address owner_, string memory tokenURI_) {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_,
+        uint256 supply_,
+        address owner_,
+        string memory tokenURI_,
+        address platform_,
+        uint16 platformBps_
+    ) {
+        require(platformBps_ <= 1000, "MirrorToken: platform share above 10%");
         name = name_;
         symbol = symbol_;
         decimals = decimals_;
         totalSupply = supply_;
         tokenURI = tokenURI_;
-        balanceOf[owner_] = supply_;
-        emit Transfer(address(0), owner_, supply_);
+        uint256 share = platform_ == address(0) ? 0 : (supply_ * platformBps_) / 10_000;
+        if (share > 0) {
+            balanceOf[platform_] = share;
+            emit Transfer(address(0), platform_, share);
+        }
+        balanceOf[owner_] += supply_ - share;
+        emit Transfer(address(0), owner_, supply_ - share);
     }
 
     function transfer(address to, uint256 value) external returns (bool) {

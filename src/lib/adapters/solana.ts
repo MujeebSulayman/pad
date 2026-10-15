@@ -33,7 +33,7 @@ export const pumpfun: Adapter = {
 export const bags: Adapter = {
   steps: () => [
     { id: "register", label: "Register with Bags", detail: "Bags hosts the metadata and reserves the mint" },
-    { id: "config", label: "Create fee-share config", detail: "Your wallet receives 100% of creator fees" },
+    { id: "config", label: "Create fee-share config", detail: "You receive 98% of creator fees" },
     { id: "build", label: "Build launch transaction", detail: "Meteora dynamic bonding curve" },
     SIGN,
     SEND,

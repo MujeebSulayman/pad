@@ -6,7 +6,9 @@ import { CHAIN, type ChainId } from "@/lib/data";
 import { RPC_URL } from "@/lib/env";
 import { cn, shortAddr } from "@/lib/format";
 import { nativeBalance } from "@/lib/rpc";
-import { isValidRecipient, maxSendable, sendNative } from "@/lib/withdraw";
+import { formatUnits, parseUnits } from "viem";
+import { FEE_LABEL } from "@/lib/fees";
+import { isValidRecipient, maxSendable, sendNative, withdrawFee } from "@/lib/withdraw";
 import { ArrowUpRight, ChainMark, Check, ChevronDown, Copy, X } from "../icons";
 import { useToast } from "../toast";
 import { Button, Spinner, TextInput } from "../ui";
@@ -260,6 +262,12 @@ function SendForm({ chains, from, onSent }: { chains: ChainId[]; from: string; o
   const [error, setError] = useState<string | null>(null);
   const token = CHAIN[chain].nativeToken;
   const badTo = to.trim() !== "" && !isValidRecipient(chain, to.trim());
+  const decimals = chain === "solana" ? 9 : 18;
+  let raw = 0n;
+  try {
+    raw = amount && Number(amount) > 0 ? parseUnits(amount, decimals) : 0n;
+  } catch {}
+  const fee = withdrawFee(chain, raw);
 
   const max = async () => {
     setBusy("max");
@@ -329,6 +337,19 @@ function SendForm({ chains, from, onSent }: { chains: ChainId[]; from: string; o
           {busy === "max" ? <Spinner size={12} /> : "Max"}
         </Button>
       </div>
+      {fee > 0n && (
+        <div className="flex flex-col gap-0.5 rounded-[12px] bg-[var(--field-bg)] px-3 py-2 font-mono text-[11.5px] shadow-[var(--field-in)]">
+          <span className="flex justify-between text-dim">
+            <span className="font-sans">MirrorPad fee ({FEE_LABEL})</span>
+            {formatUnits(fee, decimals)} {token}
+          </span>
+          <span className="flex justify-between">
+            <span className="font-sans text-dim">Total leaving your wallet</span>
+            {formatUnits(raw + fee, decimals)} {token} + network fee
+          </span>
+          {chain !== "solana" && <span className="mt-1 font-sans text-[11px] text-mute">Two approvals: the fee, then the transfer.</span>}
+        </div>
+      )}
       {error && <p className="text-[12px] leading-4 text-bad">{error}</p>}
       <Button variant="accent" size="sm" full className="!h-10" loading={busy === "send"} disabled={!!busy || !to.trim() || badTo || !(Number(amount) > 0)} onClick={send}>
         {busy === "send" ? "Confirm in your wallet…" : `Send ${amount || "0"} ${token}`}

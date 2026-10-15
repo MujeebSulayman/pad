@@ -280,7 +280,7 @@ export function MobileView(p: ViewProps) {
             >
               Every deployment routed through this aggregator. Mirror legs are listed separately.
             </Intro>
-            <ActivityList rows={p.launches} />
+            <ActivityList rows={p.launches} onTrade={p.onTrade} />
           </section>
         )}
       </main>

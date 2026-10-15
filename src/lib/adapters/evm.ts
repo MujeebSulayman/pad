@@ -3,6 +3,7 @@ import { MIRROR_TOKEN_ABI, MIRROR_TOKEN_BYTECODE } from "../contracts/mirror-tok
 import type { ChainId } from "../data";
 import { RPC_URL } from "../env";
 import { VIEM_CHAIN } from "../evm-chains";
+import { FEE_BPS, TREASURY } from "../fees";
 import { gasFor, requireFunds } from "./funds";
 import { evmSigner, xUrl, type Adapter, type LegCtx, type StepDef } from "./types";
 
@@ -65,6 +66,15 @@ export const clanker: Adapter = {
       tokenAdmin: evm.address,
       metadata: { description: d.description, socialMediaUrls: socials },
       context: { interface: "MirrorPad" },
+      // Creator keeps 98% of the trading-fee rewards; MirrorPad's treasury takes 2%.
+      ...(TREASURY.evm && {
+        rewards: {
+          recipients: [
+            { admin: evm.address, recipient: evm.address, bps: 10_000 - FEE_BPS, token: "Both" as const },
+            { admin: TREASURY.evm as Address, recipient: TREASURY.evm as Address, bps: FEE_BPS, token: "Both" as const },
+          ],
+        },
+      }),
       ...(devBuy > 0 && { devBuy: { ethAmount: devBuy } }),
     });
     if (res.error) throw res.error;
@@ -176,7 +186,8 @@ function erc20(chain: EvmChain, next?: (token: Address) => { label: string; href
         chain: VIEM_CHAIN[chain],
         abi: MIRROR_TOKEN_ABI,
         bytecode: MIRROR_TOKEN_BYTECODE,
-        args: [d.name, d.symbol, decimals, supply, evm.address, ctx.meta.metadataUri],
+        // 2% of supply to MirrorPad's treasury (none if no treasury is set).
+        args: [d.name, d.symbol, decimals, supply, evm.address, ctx.meta.metadataUri, (TREASURY.evm || zeroAddress) as Address, TREASURY.evm ? FEE_BPS : 0],
       });
       ctx.step("confirm");
       const receipt = await waitFor(chain, tx);

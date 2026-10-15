@@ -19,6 +19,10 @@ export const PINATA_JWT = clean(process.env.PINATA_JWT);
 export const IPFS_GATEWAY = (clean(process.env.PINATA_GATEWAY) || "https://gateway.pinata.cloud").replace(/\/$/, "");
 export const BAGS_API_KEY = clean(process.env.BAGS_API_KEY);
 export const ZORA_API_KEY = clean(process.env.ZORA_API_KEY);
+/** Optional: without it Jupiter allows 0.5 requests/second, enough for light use. */
+export const JUPITER_API_KEY = clean(process.env.JUPITER_API_KEY);
+/** 0x Swap API (Base, BNB Chain, Robinhood Chain trading). https://dashboard.0x.org */
+export const ZEROX_API_KEY = clean(process.env.ZEROX_API_KEY);
 
 /** Thrown by route helpers; turned into a JSON error response. */
 export class HttpError extends Error {

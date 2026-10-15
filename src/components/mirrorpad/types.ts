@@ -31,4 +31,6 @@ export type ViewProps = {
   onConnect: () => void;
   onDisconnect: () => void;
   onLaunch: () => void;
+  /** Opens the in-app trade window for a live launch. Absent in the demo build (no real wallets). */
+  onTrade?: (launch: Launch) => void;
 };

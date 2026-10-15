@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/server/auth";
 import { BAGS_API_KEY, HttpError, requireConfig } from "@/lib/server/env";
+import { FEE_BPS, TREASURY } from "@/lib/fees";
 import { jsonBody, optStr, route, str, venueError, venueFetch } from "@/lib/server/http";
 
 const API = "https://public-api-v2.bags.fm/api/v1";
@@ -51,8 +52,10 @@ export const POST = route(async (req) => {
       body: JSON.stringify({
         payer,
         baseMint: str(b.baseMint, "baseMint", 64),
-        claimersArray: [payer],
-        basisPointsArray: [10000],
+        // Creator keeps 98% of the creator fees; MirrorPad's treasury takes 2%.
+        ...(TREASURY.solana && TREASURY.solana !== payer
+          ? { claimersArray: [payer, TREASURY.solana], basisPointsArray: [10_000 - FEE_BPS, FEE_BPS] }
+          : { claimersArray: [payer], basisPointsArray: [10_000] }),
         bagsConfigType: DEFAULT_CONFIG_TYPE,
       }),
     });

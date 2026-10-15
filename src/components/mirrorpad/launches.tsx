@@ -5,6 +5,19 @@ import { cn, fmtUsd, shortAddr, timeAgo } from "@/lib/format";
 import { ArrowUpRight, ChainMark } from "../icons";
 import { Badge, TokenAvatar, type Tone } from "../ui";
 
+const tradable = (r: Launch) => r.status === "success" && !!r.mintAddress;
+
+function TradeButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="h-8 rounded-full bg-[var(--steel)] px-3.5 text-[12.5px] font-semibold shadow-[inset_0_1px_0_var(--rim)] transition-colors hover:bg-[var(--steel-2)]"
+    >
+      Trade
+    </button>
+  );
+}
+
 const STATUS: Record<LaunchStatus, { tone: Tone; label: string }> = {
   success: { tone: "green", label: "Live" },
   pending: { tone: "amber", label: "In review" },
@@ -16,7 +29,7 @@ const MirrorTag = ({ count }: { count: number }) => (
 );
 
 /** Desktop: every deployment routed through the aggregator, newest first. */
-export function LaunchesTable({ rows }: { rows: Launch[] }) {
+export function LaunchesTable({ rows, onTrade }: { rows: Launch[]; onTrade?: (l: Launch) => void }) {
   return (
     <div className="glass overflow-hidden rounded-[30px]" data-lg="surface" data-lg-r="30" data-lg-tint="card">
       <div className="flex items-center justify-between gap-4 px-6 py-5">
@@ -30,7 +43,7 @@ export function LaunchesTable({ rows }: { rows: Launch[] }) {
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead>
             <tr className="border-y border-line">
-              {["Token", "Chain", "Venue", "Address", "Market cap", "Status", "Age"].map((h) => (
+              {["Token", "Chain", "Venue", "Address", "Market cap", "Status", "Age", ...(onTrade ? [""] : [])].map((h) => (
                 <th key={h} className="label px-6 py-2.5 !text-[10.5px]">
                   {h}
                 </th>
@@ -85,6 +98,7 @@ export function LaunchesTable({ rows }: { rows: Launch[] }) {
                   <td className="px-6 py-3 font-mono text-[12px] tabular-nums text-mute" suppressHydrationWarning>
                     {timeAgo(r.createdAt)}
                   </td>
+                  {onTrade && <td className="px-6 py-3 text-right">{tradable(r) && <TradeButton onClick={() => onTrade(r)} />}</td>}
                 </tr>
               );
             })}
@@ -96,7 +110,7 @@ export function LaunchesTable({ rows }: { rows: Launch[] }) {
 }
 
 /** Phones: the same feed as a list of cards. */
-export function ActivityList({ rows }: { rows: Launch[] }) {
+export function ActivityList({ rows, onTrade }: { rows: Launch[]; onTrade?: (l: Launch) => void }) {
   return (
     <div className="flex flex-col gap-2.5">
       {rows.map((r) => {
@@ -104,13 +118,7 @@ export function ActivityList({ rows }: { rows: Launch[] }) {
         const pad = PAD[r.launchpadId];
         const s = STATUS[r.status];
         return (
-          <a
-            key={r.id}
-            href={`${chain.explorer}/address/${r.mintAddress}`}
-            target="_blank"
-            rel="noreferrer"
-            className="tile flex items-center gap-3 rounded-[22px] p-3.5"
-          >
+          <div key={r.id} className="tile flex items-center gap-3 rounded-[22px] p-3.5">
             <TokenAvatar imageUrl={r.imageUrl} symbol={r.symbol} className="h-12 w-12 rounded-[15px] text-[13px]" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -125,7 +133,11 @@ export function ActivityList({ rows }: { rows: Launch[] }) {
                 {r.mirrorCount && <MirrorTag count={r.mirrorCount} />}
               </p>
               <p className="mt-1 font-mono text-[11px] text-mute" suppressHydrationWarning>
-                {shortAddr(r.mintAddress, 6, 4)} · {timeAgo(r.createdAt)}
+                <a href={`${chain.explorer}/address/${r.mintAddress}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 hover:text-fg">
+                  {shortAddr(r.mintAddress, 6, 4)}
+                  <ArrowUpRight size={10} />
+                </a>{" "}
+                · {timeAgo(r.createdAt)}
               </p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1.5">
@@ -133,9 +145,9 @@ export function ActivityList({ rows }: { rows: Launch[] }) {
                 {s.label}
               </Badge>
               <span className="font-mono text-[12.5px] tabular-nums">{r.marketCapUsd ? fmtUsd(r.marketCapUsd) : "—"}</span>
-              <ArrowUpRight size={12} className="text-mute" />
+              {onTrade && tradable(r) && <TradeButton onClick={() => onTrade(r)} />}
             </div>
-          </a>
+          </div>
         );
       })}
     </div>
