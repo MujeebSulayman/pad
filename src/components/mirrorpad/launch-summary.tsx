@@ -103,7 +103,7 @@ export function LaunchSummary({
                       <ChainMark chain={l.chain.mark} size={12} />
                     </span>
                     <span className="truncate">{l.pad.name}</span>
-                    {l.mirror && <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-mute">mirror</span>}
+                    {l.mirror && <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-mute">shadow</span>}
                   </span>
                 }
                 value={`${l.native.toFixed(4)} ${l.chain.nativeToken}`}

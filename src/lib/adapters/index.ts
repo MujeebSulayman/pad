@@ -29,7 +29,7 @@ export function stepsFor(pad: Launchpad, mirror: boolean): StepDef[] {
         { id: "upload", label: "Pin metadata", detail: "Uploading image and metadata to IPFS" },
       ];
   const tail: StepDef = mirror
-    ? { id: "index", label: "Link to the mirror set", detail: "Verifying on-chain and grouping with the primary deployment" }
+    ? { id: "index", label: "Link to the shadow set", detail: "Verifying on-chain and grouping with the primary deployment" }
     : { id: "index", label: "Index listing", detail: "Verifying on-chain and saving to the feed" };
   return [...head, ...ADAPTERS[pad.id].steps(chain), tail];
 }

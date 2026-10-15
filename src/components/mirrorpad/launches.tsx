@@ -25,7 +25,7 @@ const STATUS: Record<LaunchStatus, { tone: Tone; label: string }> = {
 };
 
 const MirrorTag = ({ count }: { count: number }) => (
-  <span className="rounded-full bg-t-purple/14 px-1.5 py-px font-sans text-[10px] font-semibold text-t-purple">{count}-chain mirror</span>
+  <span className="rounded-full bg-t-purple/14 px-1.5 py-px font-sans text-[10px] font-semibold text-t-purple">{count}-chain shadow</span>
 );
 
 /** Desktop: every deployment routed through the aggregator, newest first. */

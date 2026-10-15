@@ -82,7 +82,7 @@ export const POST = route(async (req) => {
   if (!pad) throw new HttpError(400, "Unknown launchpad.");
   // Every venue deploys on-chain, so only confirmed launches are recorded.
   if (b.status !== "success") throw new HttpError(400, "Only confirmed launches are recorded.");
-  if (b.mirrorGroup && !UUID.test(b.mirrorGroup)) throw new HttpError(400, "Invalid mirror group.");
+  if (b.mirrorGroup && !UUID.test(b.mirrorGroup)) throw new HttpError(400, "Invalid shadow group.");
 
   const creator = str(b.creator, "creator", 64);
   const mint = optStr(b.mint, 64);

@@ -34,7 +34,7 @@ export function MirrorFlow({ chain, pad, draft, mirrors }: { chain: ChainId; pad
     <Section id="how">
       <SectionHead
         index="03"
-        eyebrow="How mirroring works"
+        eyebrow="How shadowing works"
         title={
           <>
             One packet in. <span className="text-mute">Four contracts out.</span>
@@ -51,7 +51,7 @@ export function MirrorFlow({ chain, pad, draft, mirrors }: { chain: ChainId; pad
               </p>
             </div>
             <a href="#studio-mirror" className="btn btn-sm btn-ghost">
-              Change mirrors
+              Change shadows
             </a>
           </div>
 
@@ -82,7 +82,7 @@ export function MirrorFlow({ chain, pad, draft, mirrors }: { chain: ChainId; pad
                       {c.shortName}
                     </text>
                     <text x={DST_X + 44} y={y + 16} fill={c.id === chain ? "var(--accent)" : "var(--mute)"} fontSize="10.5" letterSpacing="0.1em">
-                      {v ? `${c.id === chain ? "PRIMARY" : "MIRROR"} · ${v.name.toUpperCase()}` : "OFF"}
+                      {v ? `${c.id === chain ? "PRIMARY" : "SHADOW"} · ${v.name.toUpperCase()}` : "OFF"}
                     </text>
                   </g>
                 );
@@ -96,7 +96,7 @@ export function MirrorFlow({ chain, pad, draft, mirrors }: { chain: ChainId; pad
         {[
           { n: "01", title: "Its own contract", line: "Each chain gets a separate deployment of the same name, symbol, description and image." },
           { n: "02", title: "One signature per chain", line: "The run executes each venue's adapter in turn. You sign once for every chain in it." },
-          { n: "03", title: "Nothing is bridged", line: "Supply and liquidity live separately on each chain. Mirrors share a name, not a pool." },
+          { n: "03", title: "Nothing is bridged", line: "Supply and liquidity live separately on each chain. Shadows share a name, not a pool." },
         ].map((p, i) => (
           <Reveal key={p.n} delay={i * 80} variant="scale" className="h-full">
             <article className="card flex h-full gap-5 p-7">

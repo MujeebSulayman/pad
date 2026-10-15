@@ -20,7 +20,7 @@ import { useDrop } from "./use-drop";
 
 type Tab = "launch" | "venues" | "activity";
 
-const STEPS = ["Chain", "Venue", "Token", "Mirror"];
+const STEPS = ["Chain", "Venue", "Token", "Shadow"];
 
 /** Floating glass tab bar, with Launch as the accent button in the middle. */
 function TabBar({ tab, onChange, badge }: { tab: Tab; onChange: (t: Tab) => void; badge: number }) {
@@ -135,7 +135,7 @@ export function MobileView(p: ViewProps) {
                   kicker={kicker}
                   title={
                     <>
-                      Launch once. <span className="text-gradient">Mirror everywhere.</span>
+                      Launch once. <span className="text-gradient">Shadow everywhere.</span>
                     </>
                   }
                 >
@@ -165,7 +165,7 @@ export function MobileView(p: ViewProps) {
             {step === 2 && (
               <section className="fade-in">
                 <Intro kicker={kicker} title="Configure the token">
-                  This metadata is what every mirror copies.
+                  This metadata is what every shadow copies.
                 </Intro>
                 <TokenPreview pad={p.pad} draft={p.draft} mirrorCount={legs.length - 1} className="mb-4" />
                 <div className="card p-5">
@@ -176,7 +176,7 @@ export function MobileView(p: ViewProps) {
 
             {step === 3 && (
               <section className="fade-in">
-                <Intro kicker={kicker} title="Mirror to other chains">
+                <Intro kicker={kicker} title="Shadow to other chains">
                   Optional. Launch on {p.chainInfo.shortName} alone, or deploy the same token across several chains in one run.
                 </Intro>
                 <MirrorPicker primaryChain={p.chain} mirrors={p.mirrors} onChange={p.onMirrorsChange} />
@@ -195,7 +195,7 @@ export function MobileView(p: ViewProps) {
                               <ChainMark chain={l.chain.mark} size={12} />
                             </span>
                             <span className="truncate">{l.pad.name}</span>
-                            {l.mirror && <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-mute">mirror</span>}
+                            {l.mirror && <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-mute">shadow</span>}
                           </span>
                         }
                         value={`${l.native.toFixed(4)} ${l.chain.nativeToken}`}
@@ -278,7 +278,7 @@ export function MobileView(p: ViewProps) {
                 </>
               }
             >
-              Every deployment routed through this aggregator. Mirror legs are listed separately.
+              Every deployment routed through this aggregator. Shadow legs are listed separately.
             </Intro>
             <ActivityList rows={p.launches} onTrade={p.onTrade} />
           </section>

@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { GlassBoot } from "@/components/glass-boot";
@@ -8,9 +9,9 @@ import { WalletProvider } from "@/components/wallet/wallet-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ShadowPad — Launch once, mirror everywhere",
+  title: "ShadowPad — Launch once, shadow everywhere",
   description:
-    "Launch a token on Robinhood, Solana, Base or BNB Chain from one form — or mirror the same token across all four in a single run. Compare fees, curves and graduation thresholds across 10 venues before you sign.",
+    "Launch a token on Robinhood, Solana, Base or BNB Chain from one form — or shadow the same token across all four in a single run. Compare fees, curves and graduation thresholds across 10 venues before you sign.",
   applicationName: "ShadowPad",
   manifest: "/manifest.webmanifest",
   icons: { icon: { url: "/icon.svg", type: "image/svg+xml" } },
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ToastProvider>
           <WalletProvider>{children}</WalletProvider>
         </ToastProvider>
+        <Analytics />
       </body>
     </html>
   );

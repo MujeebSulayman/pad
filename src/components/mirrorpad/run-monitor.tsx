@@ -81,7 +81,7 @@ export function RunMonitor({
                   </span>
                   <span className={cn("text-[12px] font-semibold", !v && "text-mute")}>{c.shortName}</span>
                   <span className={cn("font-mono text-[9.5px] uppercase tracking-[0.1em]", primary ? "text-accent" : "text-mute")}>
-                    {primary ? "primary" : v ? "mirror" : "off"}
+                    {primary ? "primary" : v ? "shadow" : "off"}
                   </span>
                 </button>
               );

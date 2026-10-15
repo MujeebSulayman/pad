@@ -90,9 +90,9 @@ export function DesktopHeader({
 const FAQS: [string, string][] = [
   [
     "What is ShadowPad?",
-    `A launchpad aggregator. Write your token metadata once, then deploy it through any of ${LAUNCHPADS.length} venues on Robinhood, Solana, Base or BNB Chain — or mirror it across all four in one run.`,
+    `A launchpad aggregator. Write your token metadata once, then deploy it through any of ${LAUNCHPADS.length} venues on Robinhood, Solana, Base or BNB Chain — or shadow it across all four in one run.`,
   ],
-  ["Is a mirror a bridged token?", "No. Each chain gets its own contract and its own liquidity. Mirrors share a name, symbol, description and image — supply is not shared."],
+  ["Is a shadow a bridged token?", "No. Each chain gets its own contract and its own liquidity. Shadows share a name, symbol, description and image — supply is not shared."],
   ["How many times do I sign?", "At least once per chain in the run. Some venues add a step: Four.meme asks for a login signature, and Bags has a fee-share config transaction before the launch."],
   [
     "Will my token be listed in the Robinhood app or on Binance Alpha?",
@@ -192,7 +192,7 @@ const COLUMNS = [
     links: [
       { href: "#studio", label: "Launch studio" },
       { href: "#venues", label: "Venue fees" },
-      { href: "#how", label: "How mirroring works" },
+      { href: "#how", label: "How shadowing works" },
       { href: "#activity", label: "Activity" },
     ],
   },
@@ -210,7 +210,7 @@ export function Footer() {
           <div>
             <Logo size={36} />
             <p className="mt-5 max-w-[32ch] text-[20px] font-semibold leading-snug tracking-[-0.03em]">
-              One form, {LAUNCHPADS.length} venues, {CHAINS.length} chains. Launch once and mirror everywhere.
+              One form, {LAUNCHPADS.length} venues, {CHAINS.length} chains. Launch once and shadow everywhere.
             </p>
           </div>
           {COLUMNS.map((c) => (
@@ -231,7 +231,7 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 md:flex-row md:items-center md:justify-between">
           <p className="max-w-[70ch] text-[13px] text-mute">
-            A launchpad aggregator. Mirrors are independent deployments, not bridged tokens.{PRIVY_APP_ID ? " Launches are real mainnet transactions signed by your wallet." : " This build is a demo: no real transactions are broadcast."}
+            A launchpad aggregator. Shadows are independent deployments, not bridged tokens.{PRIVY_APP_ID ? " Launches are real mainnet transactions signed by your wallet." : " This build is a demo: no real transactions are broadcast."}
           </p>
           <p className="shrink-0 text-[13px] text-mute">© {new Date().getFullYear()} ShadowPad</p>
         </div>

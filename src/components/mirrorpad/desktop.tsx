@@ -33,11 +33,11 @@ function Hero(p: ViewProps) {
           <h1 className="display rise mt-7 text-[clamp(44px,6.4vw,92px)]" style={{ animationDelay: "80ms" }}>
             Launch once.
             <br />
-            Mirror <span className="text-gradient">everywhere.</span>
+            Shadow <span className="text-gradient">everywhere.</span>
           </h1>
 
           <p className="rise mt-7 max-w-[48ch] text-[clamp(16px,1.5vw,19px)] leading-relaxed text-dim" style={{ animationDelay: "160ms" }}>
-            Write your token metadata once, then deploy it through the venue that fits — or mirror the same token onto Robinhood, Solana, Base and BNB
+            Write your token metadata once, then deploy it through the venue that fits — or shadow the same token onto Robinhood, Solana, Base and BNB
             Chain in a single run. Fees, curves and graduation thresholds compared before you sign.
           </p>
 
@@ -114,13 +114,13 @@ function Studio(p: ViewProps) {
 
           <article className="card p-6 sm:p-8">
             <StepHead n={3} tag="Token" title="Configure the token" done={p.issues.length === 0}>
-              This metadata is what every mirror copies. The extra fields at the bottom are specific to {p.pad.name}.
+              This metadata is what every shadow copies. The extra fields at the bottom are specific to {p.pad.name}.
             </StepHead>
             <TokenForm pad={p.pad} draft={p.draft} errors={p.errors} onChange={p.onDraftChange} />
           </article>
 
           <article id="studio-mirror" className="card scroll-mt-28 p-6 sm:p-8">
-            <StepHead n={4} tag="Mirror" title="Mirror to other chains" done={mirrorCount > 0}>
+            <StepHead n={4} tag="Shadow" title="Shadow to other chains" done={mirrorCount > 0}>
               Optional. Deploy the same token on the other three chains in the same run, each through its own venue.
             </StepHead>
             <MirrorPicker primaryChain={p.chain} mirrors={p.mirrors} onChange={p.onMirrorsChange} />

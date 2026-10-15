@@ -25,8 +25,8 @@ export function MirrorPicker({ primaryChain, mirrors, onChange }: { primaryChain
           <Info size={15} />
         </span>
         <p className="text-[13px] leading-[19px] text-dim">
-          A mirror deploys the same name, symbol, description and image to another chain in the same run. Each chain gets its own contract and its own
-          liquidity — mirrors are not bridged, and supply is not shared.
+          A shadow deploys the same name, symbol, description and image to another chain in the same run. Each chain gets its own contract and its own
+          liquidity — shadows are not bridged, and supply is not shared.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export function MirrorPicker({ primaryChain, mirrors, onChange }: { primaryChain
           const pad = mirrors[c.id] ? PAD[mirrors[c.id]!] : null;
           return (
             <div key={c.id} className={cn("flex flex-wrap items-center gap-x-3.5 gap-y-3 px-5 py-4 transition-colors duration-300", on && "bg-[color-mix(in_srgb,var(--fg)_3%,transparent)]")}>
-              <Switch checked={on} onChange={(v) => toggle(c.id, v)} label={`Mirror to ${c.name}`} />
+              <Switch checked={on} onChange={(v) => toggle(c.id, v)} label={`Shadow to ${c.name}`} />
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[12px] bg-[var(--knob)] shadow-[var(--edge-sm)]" style={{ color: c.accent }}>
                 <ChainMark chain={c.mark} size={17} />
               </span>

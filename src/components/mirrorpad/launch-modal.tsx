@@ -220,7 +220,7 @@ export function LaunchModal({
         ok < results.length
           ? `${ok} of ${results.length} legs launched`
           : multi
-            ? `${d.symbol} mirrored across ${legs.length} chains`
+            ? `${d.symbol} shadowed across ${legs.length} chains`
             : `${d.symbol} is live`,
       description: multi ? legs.map((l) => CHAIN[l.chain].shortName).join(", ") : `${CHAIN[legs[0].chain].name} via ${legs[0].pad.name}.`,
       action,
@@ -244,10 +244,10 @@ export function LaunchModal({
       : failed > 0
         ? `${legs.length - failed} of ${legs.length} legs launched`
         : multi
-          ? `Mirrored to ${legs.length} chains`
+          ? `Shadowed to ${legs.length} chains`
           : "Launch complete"
     : multi
-      ? `Mirroring $${d.symbol}`
+      ? `Shadowing $${d.symbol}`
       : `Launching $${d.symbol}`;
 
   const description = done
@@ -302,7 +302,7 @@ export function LaunchModal({
                     {chain.shortName}
                     <span className="ml-1.5 font-normal text-dim">{leg.pad.name}</span>
                   </p>
-                  <span className="ml-auto">{leg.mirror ? <Badge tone="blue">Mirror</Badge> : <Badge>Primary</Badge>}</span>
+                  <span className="ml-auto">{leg.mirror ? <Badge tone="blue">Shadow</Badge> : <Badge>Primary</Badge>}</span>
                   {o && o.status !== "failed" && (
                     <span className="pop text-good">
                       <Check size={15} strokeWidth={2.2} />
