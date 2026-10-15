@@ -11,6 +11,7 @@ import { WalletButton } from "../wallet/wallet-menu";
 import { Badge, Button, Notice, Row } from "../ui";
 import { ChainPicker } from "./chain-picker";
 import { ActivityList } from "./launches";
+import { RevenuePanel } from "./revenue";
 import { TechList } from "./tech";
 import { LaunchpadPicker } from "./launchpad-picker";
 import { TokenPreview } from "./launch-summary";
@@ -295,6 +296,19 @@ export function MobileView(p: ViewProps) {
               Every deployment routed through this aggregator. Shadow legs are listed separately.
             </Intro>
             <ActivityList rows={p.launches} onTrade={p.onTrade} />
+            <div className="mt-10">
+              <Intro
+                kicker="Holder revenue"
+                title={
+                  <>
+                    Fees flow back <span className="text-mute">to holders.</span>
+                  </>
+                }
+              >
+                Every trade, every chain.
+              </Intro>
+              <RevenuePanel />
+            </div>
           </section>
         )}
       </main>
