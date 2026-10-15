@@ -5,7 +5,7 @@ import { CHAIN, CHAINS, LAUNCHPADS, STATUS_LABEL, padsOn } from "@/lib/data";
 import { cn, fmtBps, fmtUsd } from "@/lib/format";
 import { costLegs, totalUsd } from "@/lib/launch";
 import { usePrices } from "../use-prices";
-import { Alert, ChainMark, ChevronRight, Grid, Layers, Logo, Receipt, Rocket, Wallet } from "../icons";
+import { Alert, ChainMark, ChevronRight, Grid, Layers, Logo, Receipt, Wordmark, Rocket, Wallet } from "../icons";
 import { ThemeButton } from "../theme";
 import { WalletButton } from "../wallet/wallet-menu";
 import { Badge, Button, Notice, Row } from "../ui";
@@ -90,8 +90,8 @@ export function MobileView(p: ViewProps) {
   return (
     <div className="flex min-h-[100dvh] flex-col lg:hidden">
       <header className="topbar lgx">
-        <Logo size={26} />
-        <span className="text-[16px] font-semibold tracking-[-0.02em]">ShadowPad</span>
+        <Logo size={30} />
+        <Wordmark height={18} title="ShadowPad" />
         <div className="ml-auto flex items-center gap-1">
           <ThemeButton />
           {p.connected ? (

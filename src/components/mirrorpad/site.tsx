@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
 import { PRIVY_APP_ID } from "@/lib/env";
 import { cn } from "@/lib/format";
-import { ArrowRight, Check, ChevronDown, Grid, Help, Layers, Logo, Rocket, Sparkles, Wallet } from "../icons";
+import { ArrowRight, Check, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Sparkles, Wallet } from "../icons";
 import { LifeCanvas } from "../life-canvas";
 import { Reveal } from "../reveal";
 import { ThemeButton } from "../theme";
@@ -57,8 +57,8 @@ export function DesktopHeader({
   return (
     <header className="topnav nav lgx" id="nav">
       <a href="#top" aria-label="ShadowPad home" className="flex shrink-0 items-center gap-2.5 transition-transform duration-700 [transition-timing-function:var(--ease-spring)] hover:scale-105">
-        <Logo size={28} />
-        <span className="text-[16px] font-semibold tracking-[-0.02em]">ShadowPad</span>
+        <Logo size={32} />
+        <Wordmark height={19} />
       </a>
       <nav className="nav-links" aria-label="Main" ref={drop.host} onPointerLeave={drop.leave}>
         <span className="drop" ref={drop.drop} aria-hidden />
@@ -208,7 +208,10 @@ export function Footer() {
       <div className="card overflow-hidden px-6 pt-10 sm:px-10">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <Logo size={36} />
+            <span className="flex items-center gap-2.5">
+              <Logo size={40} />
+              <Wordmark height={22} title="ShadowPad" />
+            </span>
             <p className="mt-5 max-w-[32ch] text-[20px] font-semibold leading-snug tracking-[-0.03em]">
               One form, {LAUNCHPADS.length} venues, {CHAINS.length} chains. Launch once and shadow everywhere.
             </p>
