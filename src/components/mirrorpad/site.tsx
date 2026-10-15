@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
 import { PRIVY_APP_ID } from "@/lib/env";
 import { cn } from "@/lib/format";
-import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Sparkles, Wallet } from "../icons";
+import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Sparkles, TelegramLogo, Wallet } from "../icons";
 import { LifeCanvas } from "../life-canvas";
 import { Reveal } from "../reveal";
 import { ThemeButton } from "../theme";
@@ -196,11 +196,10 @@ const COLUMNS = [
       { href: "#activity", label: "Activity" },
     ],
   },
-  {
-    title: "Community",
-    links: [{ href: "https://t.me/Shadowpad_app", label: "Telegram" }],
-  },
 ];
+
+/** Footer social icons. Add X here once its link is known: { href: "https://x.com/…", label: "X", Icon: XLogo }. */
+const SOCIALS = [{ href: "https://t.me/Shadowpad_app", label: "Telegram", Icon: TelegramLogo }];
 
 export function Footer() {
   return (
@@ -234,6 +233,25 @@ export function Footer() {
               </ul>
             </nav>
           ))}
+          <nav aria-label="Community">
+            <p className="label">Community</p>
+            <ul className="mt-4 flex gap-2.5">
+              {SOCIALS.map(({ href, label, Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="grid h-11 w-11 place-items-center rounded-full bg-[var(--steel)] text-dim shadow-[inset_0_1px_0_var(--rim)] transition-colors hover:bg-[var(--steel-2)] hover:text-fg"
+                  >
+                    <Icon size={18} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
         <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 md:flex-row md:items-center md:justify-between">
