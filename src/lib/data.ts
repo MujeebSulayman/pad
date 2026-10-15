@@ -1,5 +1,5 @@
 /*
- * The MirrorPad catalogue: four chains, ten launchpads, the per-venue form fields,
+ * The ShadowPad catalogue: four chains, ten launchpads, the per-venue form fields,
  * reference prices and the seeded activity feed. Every number here is an editable default,
  * not a live quote from the venue.
  */

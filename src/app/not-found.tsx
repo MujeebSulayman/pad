@@ -7,7 +7,7 @@ export default function NotFound() {
         <p className="label">404</p>
         <h1 className="mt-3 text-[32px] leading-tight">Nothing launched here.</h1>
         <Link href="/" className="btn btn-white mt-6">
-          Back to MirrorPad
+          Back to ShadowPad
         </Link>
       </div>
     </main>

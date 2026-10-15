@@ -17,7 +17,7 @@ import { TradeModal } from "./trade-modal";
 import type { ViewProps } from "./types";
 
 /** The whole app's state. Desktop (lg and up) and phones get different layouts over the same state. */
-export function MirrorPad() {
+export function ShadowPad() {
   const toast = useToast();
   const [chain, setChain] = useState<ChainId>("solana");
   const [padId, setPadId] = useState("pumpfun");

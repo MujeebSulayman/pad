@@ -1,5 +1,5 @@
-import { MirrorPad } from "@/components/mirrorpad/mirror-pad";
+import { ShadowPad } from "@/components/mirrorpad/mirror-pad";
 
 export default function Home() {
-  return <MirrorPad />;
+  return <ShadowPad />;
 }

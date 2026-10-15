@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * MirrorPad on liquid glass. A cream (light) or near-black (dark) field lit by a cyan ribbon,
+ * ShadowPad on liquid glass. A cream (light) or near-black (dark) field lit by a cyan ribbon,
  * with beveled glass on top. Colors are CSS variables per theme, exposed to Tailwind
  * below so `text-mute`, `border-line`, `bg-accent`, `text-t-green` etc. follow the theme.
  */
@@ -775,7 +775,7 @@ html.gl.scrolling [data-lg="surface"] {
     box-shadow: 0 0 10px var(--accent);
   }
 
-  /* ── MirrorPad ─────────────────────────────────────────────── */
+  /* ── ShadowPad ─────────────────────────────────────────────── */
 
   /* A selectable glass tile (chains, venues). The selected one gets a lit accent rim. */
   .tile {

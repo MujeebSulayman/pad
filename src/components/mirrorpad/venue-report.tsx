@@ -46,7 +46,7 @@ export function VenueReport({ padId, sort, onSortChange, onSelectPad }: { padId:
         <Reveal variant="right">
           <div className="glass rounded-[30px]" data-lg="surface" data-lg-r="30" data-lg-tint="card">
             <div className="flex items-center justify-between border-b border-dashed border-line2 px-6 py-5 sm:px-8">
-              <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-dim">MirrorPad · trading fee by venue</span>
+              <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-dim">ShadowPad · trading fee by venue</span>
               <Receipt size={18} className="text-accent" />
             </div>
             <div className="grid gap-1 px-6 py-5 sm:px-8">

@@ -1,4 +1,4 @@
--- MirrorPad schema for Neon (Postgres). The app also creates this on first use (src/lib/server/db.ts);
+-- ShadowPad schema for Neon (Postgres). The app also creates this on first use (src/lib/server/db.ts);
 -- run it by hand only if you want the table in place before the first request.
 
 create table if not exists launches (

@@ -91,7 +91,7 @@ export function MobileView(p: ViewProps) {
     <div className="flex min-h-[100dvh] flex-col lg:hidden">
       <header className="topbar lgx">
         <Logo size={26} />
-        <span className="text-[16px] font-semibold tracking-[-0.02em]">MirrorPad</span>
+        <span className="text-[16px] font-semibold tracking-[-0.02em]">ShadowPad</span>
         <div className="ml-auto flex items-center gap-1">
           <ThemeButton />
           {p.connected ? (

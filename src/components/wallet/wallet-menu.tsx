@@ -340,7 +340,7 @@ function SendForm({ chains, from, onSent }: { chains: ChainId[]; from: string; o
       {fee > 0n && (
         <div className="flex flex-col gap-0.5 rounded-[12px] bg-[var(--field-bg)] px-3 py-2 font-mono text-[11.5px] shadow-[var(--field-in)]">
           <span className="flex justify-between text-dim">
-            <span className="font-sans">MirrorPad fee ({FEE_LABEL})</span>
+            <span className="font-sans">ShadowPad fee ({FEE_LABEL})</span>
             {formatUnits(fee, decimals)} {token}
           </span>
           <span className="flex justify-between">

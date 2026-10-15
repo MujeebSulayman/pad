@@ -8,13 +8,13 @@ import { WalletProvider } from "@/components/wallet/wallet-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MirrorPad — Launch once, mirror everywhere",
+  title: "ShadowPad — Launch once, mirror everywhere",
   description:
     "Launch a token on Robinhood, Solana, Base or BNB Chain from one form — or mirror the same token across all four in a single run. Compare fees, curves and graduation thresholds across 10 venues before you sign.",
-  applicationName: "MirrorPad",
+  applicationName: "ShadowPad",
   manifest: "/manifest.webmanifest",
   icons: { icon: { url: "/icon.svg", type: "image/svg+xml" } },
-  appleWebApp: { title: "MirrorPad", statusBarStyle: "black-translucent" },
+  appleWebApp: { title: "ShadowPad", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

@@ -8,7 +8,7 @@ type Body = { inputMint: string; outputMint: string; amount: string; taker: stri
 
 /**
  * Raw swap instructions from Jupiter's Router (/swap/v2/build). The browser assembles them with
- * MirrorPad's fee transfer into one transaction, so the 2% and the swap land together or not at all.
+ * ShadowPad's fee transfer into one transaction, so the 2% and the swap land together or not at all.
  * One side must be SOL: trades are always token ↔ SOL.
  */
 export const POST = route(async (req) => {

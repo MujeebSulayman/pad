@@ -144,7 +144,7 @@ export const Book = (p: P) => (
   </svg>
 );
 
-/** The MirrorPad mark: a solid triangle. */
+/** The ShadowPad mark: a solid triangle. */
 export const Logo = ({ size = 28 }: { size?: number }) => (
   <span
     className="grid shrink-0 place-items-center rounded-[9px] text-[var(--accent-ink)]"

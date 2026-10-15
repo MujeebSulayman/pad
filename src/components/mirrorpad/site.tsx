@@ -56,9 +56,9 @@ export function DesktopHeader({
 
   return (
     <header className="topnav nav lgx" id="nav">
-      <a href="#top" aria-label="MirrorPad home" className="flex shrink-0 items-center gap-2.5 transition-transform duration-700 [transition-timing-function:var(--ease-spring)] hover:scale-105">
+      <a href="#top" aria-label="ShadowPad home" className="flex shrink-0 items-center gap-2.5 transition-transform duration-700 [transition-timing-function:var(--ease-spring)] hover:scale-105">
         <Logo size={28} />
-        <span className="text-[16px] font-semibold tracking-[-0.02em]">MirrorPad</span>
+        <span className="text-[16px] font-semibold tracking-[-0.02em]">ShadowPad</span>
       </a>
       <nav className="nav-links" aria-label="Main" ref={drop.host} onPointerLeave={drop.leave}>
         <span className="drop" ref={drop.drop} aria-hidden />
@@ -89,7 +89,7 @@ export function DesktopHeader({
 
 const FAQS: [string, string][] = [
   [
-    "What is MirrorPad?",
+    "What is ShadowPad?",
     `A launchpad aggregator. Write your token metadata once, then deploy it through any of ${LAUNCHPADS.length} venues on Robinhood, Solana, Base or BNB Chain — or mirror it across all four in one run.`,
   ],
   ["Is a mirror a bridged token?", "No. Each chain gets its own contract and its own liquidity. Mirrors share a name, symbol, description and image — supply is not shared."],
@@ -233,11 +233,11 @@ export function Footer() {
           <p className="max-w-[70ch] text-[13px] text-mute">
             A launchpad aggregator. Mirrors are independent deployments, not bridged tokens.{PRIVY_APP_ID ? " Launches are real mainnet transactions signed by your wallet." : " This build is a demo: no real transactions are broadcast."}
           </p>
-          <p className="shrink-0 text-[13px] text-mute">© {new Date().getFullYear()} MirrorPad</p>
+          <p className="shrink-0 text-[13px] text-mute">© {new Date().getFullYear()} ShadowPad</p>
         </div>
 
         <p aria-hidden className="pointer-events-none mt-6 -mb-[0.12em] select-none text-center font-display text-[clamp(64px,13vw,190px)] leading-[0.8] tracking-[0.08em] text-fg/[.05]">
-          mirrorpad
+          shadowpad
         </p>
       </div>
     </footer>

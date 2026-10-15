@@ -96,7 +96,7 @@ export type Quote = {
   /** Expected, and the worst case after slippage. */
   receive: bigint;
   receiveMin: bigint;
-  /** MirrorPad's fee, in the native coin (lamports / wei). */
+  /** ShadowPad's fee, in the native coin (lamports / wei). */
   fee: bigint;
   /** Opaque data needed to execute. */
   plan: { kind: "solana"; build: Build; fee: bigint } | { kind: "evm"; quote: ZeroXQuote };
@@ -105,7 +105,7 @@ export type Quote = {
 type Ctx = { signer: Signer; token: { chain: ChainId; address: string } };
 
 /**
- * Solana: buys spend `amount` lamports of which 2% is MirrorPad's fee and 98% is swapped; sells swap
+ * Solana: buys spend `amount` lamports of which 2% is ShadowPad's fee and 98% is swapped; sells swap
  * `amount` token units and the fee is 2% of the minimum SOL out. EVM: 0x takes the 2% in the native coin.
  */
 export async function getQuote({ signer, token }: Ctx, side: Side, amount: bigint): Promise<Quote> {
@@ -171,7 +171,7 @@ function cuLimitIx(units: number): Instruction {
   return { programAddress: COMPUTE_BUDGET, accounts: [], data };
 }
 
-/** Swap + MirrorPad's fee transfer in one transaction, sized by a simulation, signed once. */
+/** Swap + ShadowPad's fee transfer in one transaction, sized by a simulation, signed once. */
 async function executeSolana(signer: Signer, build: Build, quotedFee: bigint): Promise<string> {
   const sol = signer.solana!;
   const fee = TREASURY.solana ? await payableFee(TREASURY.solana, quotedFee) : 0n;

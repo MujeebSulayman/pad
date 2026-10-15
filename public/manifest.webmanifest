@@ -1,6 +1,6 @@
 {
-  "name": "MirrorPad — Launch once, mirror everywhere",
-  "short_name": "MirrorPad",
+  "name": "ShadowPad — Launch once, mirror everywhere",
+  "short_name": "ShadowPad",
   "description": "Launch a token on Robinhood, Solana, Base or BNB Chain — or mirror it across all four in one run.",
   "start_url": "/",
   "display": "standalone",

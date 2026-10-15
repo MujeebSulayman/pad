@@ -33,7 +33,7 @@ export function LaunchesTable({ rows, onTrade }: { rows: Launch[]; onTrade?: (l:
   return (
     <div className="glass overflow-hidden rounded-[30px]" data-lg="surface" data-lg-r="30" data-lg-tint="card">
       <div className="flex items-center justify-between gap-4 px-6 py-5">
-        <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-dim">MirrorPad · deployments</span>
+        <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-dim">ShadowPad · deployments</span>
         <span className="pill !h-7 font-mono text-[11px]">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-good shadow-[0_0_10px_var(--good)]" />
           {rows.length} launches

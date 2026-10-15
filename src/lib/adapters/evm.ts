@@ -65,8 +65,8 @@ export const clanker: Adapter = {
       chainId: 8453,
       tokenAdmin: evm.address,
       metadata: { description: d.description, socialMediaUrls: socials },
-      context: { interface: "MirrorPad" },
-      // Creator keeps 98% of the trading-fee rewards; MirrorPad's treasury takes 2%.
+      context: { interface: "ShadowPad" },
+      // Creator keeps 98% of the trading-fee rewards; ShadowPad's treasury takes 2%.
       ...(TREASURY.evm && {
         rewards: {
           recipients: [
@@ -186,7 +186,7 @@ function erc20(chain: EvmChain, next?: (token: Address) => { label: string; href
         chain: VIEM_CHAIN[chain],
         abi: MIRROR_TOKEN_ABI,
         bytecode: MIRROR_TOKEN_BYTECODE,
-        // 2% of supply to MirrorPad's treasury (none if no treasury is set).
+        // 2% of supply to ShadowPad's treasury (none if no treasury is set).
         args: [d.name, d.symbol, decimals, supply, evm.address, ctx.meta.metadataUri, (TREASURY.evm || zeroAddress) as Address, TREASURY.evm ? FEE_BPS : 0],
       });
       ctx.step("confirm");

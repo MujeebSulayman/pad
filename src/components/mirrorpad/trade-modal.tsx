@@ -23,7 +23,7 @@ function fmt(raw: bigint, decimals: number) {
 const SELL_PRESETS = ["25", "50", "100"];
 const BUY_PRESETS: Record<string, string[]> = { SOL: ["0.1", "0.5", "1"], ETH: ["0.005", "0.01", "0.05"], BNB: ["0.01", "0.05", "0.1"] };
 
-/** Buy and sell a launched token in-app. MirrorPad's fee is part of the quote and shown before signing. */
+/** Buy and sell a launched token in-app. ShadowPad's fee is part of the quote and shown before signing. */
 export function TradeModal({ launch, onClose }: { launch: Launch; onClose: () => void }) {
   const { signer, addressFor, connect } = useWallet();
   const toast = useToast();
@@ -217,7 +217,7 @@ export function TradeModal({ launch, onClose }: { launch: Launch; onClose: () =>
               </div>
               {quote.fee > 0n && (
                 <div className="flex justify-between text-[12px]">
-                  <dt className="text-mute">MirrorPad fee ({FEE_LABEL})</dt>
+                  <dt className="text-mute">ShadowPad fee ({FEE_LABEL})</dt>
                   <dd className="font-mono text-dim">
                     {fmt(quote.fee, nd)} {chain.nativeToken}
                   </dd>

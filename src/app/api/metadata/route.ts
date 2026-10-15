@@ -38,7 +38,7 @@ export const POST = route(async (req) => {
     telegram: tgUrl(optStr(b.telegram, 200)),
     issuer: optStr(b.issuerEntity, 200) ? { entity: optStr(b.issuerEntity, 200), jurisdiction: optStr(b.jurisdiction, 200) } : undefined,
     showName: true,
-    createdOn: "MirrorPad",
+    createdOn: "ShadowPad",
   };
   const pinned = await pinJson(metadata, `${symbol}-metadata`);
   return { image, metadata: pinned, json: metadata };

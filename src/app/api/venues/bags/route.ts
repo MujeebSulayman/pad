@@ -52,7 +52,7 @@ export const POST = route(async (req) => {
       body: JSON.stringify({
         payer,
         baseMint: str(b.baseMint, "baseMint", 64),
-        // Creator keeps 98% of the creator fees; MirrorPad's treasury takes 2%.
+        // Creator keeps 98% of the creator fees; ShadowPad's treasury takes 2%.
         ...(TREASURY.solana && TREASURY.solana !== payer
           ? { claimersArray: [payer, TREASURY.solana], basisPointsArray: [10_000 - FEE_BPS, FEE_BPS] }
           : { claimersArray: [payer], basisPointsArray: [10_000] }),

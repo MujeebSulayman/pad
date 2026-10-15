@@ -10,7 +10,7 @@ const NATIVE = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 type Body = { chain: "base" | "bsc" | "robinhood"; sellToken: string; buyToken: string; sellAmount: string; taker: string };
 
 /**
- * A firm 0x quote (AllowanceHolder flow) with MirrorPad's 2% taken in the native coin and sent to
+ * A firm 0x quote (AllowanceHolder flow) with ShadowPad's 2% taken in the native coin and sent to
  * the treasury by 0x's settlement contract. One side must be native: trades are token ↔ ETH/BNB.
  */
 export const POST = route(async (req) => {

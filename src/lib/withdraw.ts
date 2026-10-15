@@ -28,7 +28,7 @@ const SOL_FEE = 5000n;
 
 const evmClient = (chain: EvmChain) => createPublicClient({ chain: VIEM_CHAIN[chain], transport: http(RPC_URL[chain]) });
 
-/** MirrorPad's withdrawal fee on `amount` (raw units), or 0 when no treasury is set for that side. */
+/** ShadowPad's withdrawal fee on `amount` (raw units), or 0 when no treasury is set for that side. */
 export const withdrawFee = (chain: ChainId, amount: bigint) => ((chain === "solana" ? TREASURY.solana : TREASURY.evm) ? feeOf(amount) : 0n);
 
 /** Largest amount whose amount + 2% fee fits in `available`. */
@@ -51,7 +51,7 @@ export async function maxSendable(chain: ChainId, from: string): Promise<string>
   }
   const client = evmClient(chain);
   const [bal, fees] = await Promise.all([client.getBalance({ address: from as Address }), client.estimateFeesPerGas()]);
-  // A plain transfer is 21,000 gas (two of them with the MirrorPad fee); 50% headroom for fee bumps.
+  // A plain transfer is 21,000 gas (two of them with the ShadowPad fee); 50% headroom for fee bumps.
   const txs = withdrawFee(chain, 10_000n) > 0n ? 2n : 1n;
   const gas = (txs * 21_000n * (fees.maxFeePerGas ?? fees.gasPrice ?? 0n) * 3n) / 2n;
   return formatEther(maxBeforeFee(chain, bal > gas ? bal - gas : 0n));
@@ -85,7 +85,7 @@ export async function sendNative(signer: Signer, chain: ChainId, to: string, amo
       (m) => setTransactionMessageFeePayer(from.address, m),
       (m) => setTransactionMessageLifetimeUsingBlockhash({ blockhash: blockhash as Blockhash, lastValidBlockHeight }, m),
       (m) => appendTransactionMessageInstruction(getTransferSolInstruction({ source: from, destination: solAddress(to), amount: lamports(amt) }), m),
-      // MirrorPad's fee rides in the same transaction: both transfers land, or neither does.
+      // ShadowPad's fee rides in the same transaction: both transfers land, or neither does.
       (m) => (fee > 0n ? appendTransactionMessageInstruction(getTransferSolInstruction({ source: from, destination: solAddress(TREASURY.solana), amount: lamports(fee) }), m) : m),
     );
     const unsigned = new Uint8Array(getTransactionEncoder().encode(compileTransaction(message)));

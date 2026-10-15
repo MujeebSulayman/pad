@@ -1,5 +1,5 @@
 /*
- * MirrorPad's own fees. Every fee goes to the treasury wallets below; with a wallet unset, the
+ * ShadowPad's own fees. Every fee goes to the treasury wallets below; with a wallet unset, the
  * fees on that side are off (nothing is charged) rather than sent anywhere unexpected.
  * NEXT_PUBLIC_ because the browser builds the transactions that carry them.
  */
