@@ -40,13 +40,7 @@ export const DEMO = {
 
 const peak = Math.max(...DEMO.daily.map((d) => d.usd));
 
-function Note() {
-  return (
-    <p className="text-[12.5px] leading-5 text-mute">
-      <strong className="font-semibold text-dim">Demo figures.</strong> These numbers are illustrative only and are not actual ShadowPad revenue or payouts.
-    </p>
-  );
-}
+
 
 function Tiles({ compact }: { compact?: boolean }) {
   const tiles = [
@@ -114,8 +108,7 @@ export function RevenueSection() {
       />
       <Reveal>
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Badge tone="amber">Demo data</Badge>
-          <Note />
+         
         </div>
       </Reveal>
       <Reveal variant="scale">
@@ -147,9 +140,7 @@ export function RevenueSection() {
 export function RevenuePanel() {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="amber">Demo data</Badge>
-      </div>
+     
       <Tiles compact />
       <div className="tile rounded-[22px] p-4">
         <p className="label">Distributed per day · 7d</p>
@@ -160,7 +151,7 @@ export function RevenuePanel() {
       <div className="tile rounded-[22px] px-4 py-1">
         <Payouts />
       </div>
-      <Note />
+     
     </div>
   );
 }
