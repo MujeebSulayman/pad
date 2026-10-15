@@ -198,13 +198,9 @@ const COLUMNS = [
   },
   {
     title: "Community",
-    // Each link shows once its URL is configured.
-    links: [
-      { href: (process.env.NEXT_PUBLIC_X_URL ?? "").trim(), label: "X" },
-      { href: (process.env.NEXT_PUBLIC_TELEGRAM_URL ?? "").trim(), label: "Telegram" },
-    ].filter((l) => l.href),
+    links: [{ href: "https://t.me/+VWt6IazpJNpkZmE0", label: "Telegram" }],
   },
-].filter((c) => c.links.length > 0);
+];
 
 export function Footer() {
   return (
