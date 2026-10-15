@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
 import { PRIVY_APP_ID } from "@/lib/env";
 import { cn } from "@/lib/format";
-import { ArrowRight, Check, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Sparkles, Wallet } from "../icons";
+import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Sparkles, Wallet } from "../icons";
 import { LifeCanvas } from "../life-canvas";
 import { Reveal } from "../reveal";
 import { ThemeButton } from "../theme";
@@ -197,10 +197,14 @@ const COLUMNS = [
     ],
   },
   {
-    title: "Project",
-    links: ["Status", "Changelog", "Terms", "GitHub"].map((label) => ({ href: "#", label })),
+    title: "Community",
+    // Each link shows once its URL is configured.
+    links: [
+      { href: (process.env.NEXT_PUBLIC_X_URL ?? "").trim(), label: "X" },
+      { href: (process.env.NEXT_PUBLIC_TELEGRAM_URL ?? "").trim(), label: "Telegram" },
+    ].filter((l) => l.href),
   },
-];
+].filter((c) => c.links.length > 0);
 
 export function Footer() {
   return (
@@ -222,7 +226,11 @@ export function Footer() {
               <ul className="mt-4 grid gap-2.5">
                 {c.links.map((l) => (
                   <li key={l.label}>
-                    <a href={l.href} className="text-[14.5px] text-dim transition-colors hover:text-fg">
+                    <a
+                      href={l.href}
+                      {...(/^https?:/.test(l.href) && { target: "_blank", rel: "noreferrer" })}
+                      className="text-[14.5px] text-dim transition-colors hover:text-fg"
+                    >
                       {l.label}
                     </a>
                   </li>
