@@ -1,4 +1,3 @@
-import { fmtUsd } from "@/lib/format";
 import { Reveal } from "../reveal";
 import { Badge } from "../ui";
 import { Section, SectionHead } from "./section";
@@ -21,22 +20,27 @@ function seeded(seed: number) {
 
 const r = seeded(20261015);
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const DAILY = DAYS.map((day) => ({ day, usd: Math.round(4200 + r() * 9800) }));
-const WEEK = DAILY.reduce((s, d) => s + d.usd, 0);
+/** Small, early-stage demo amounts: a few dollars a day. */
+const DAILY = DAYS.map((day) => ({ day, usd: Math.round((2.4 + r() * 9.6) * 100) / 100 }));
+const WEEK = Math.round(DAILY.reduce((s, d) => s + d.usd, 0) * 100) / 100;
+const HOLDERS = 46;
 
 export const DEMO = {
-  totalUsd: 1_284_650,
+  totalUsd: 187.42,
   weekUsd: WEEK,
-  holders: 8_412,
-  avgPerHolder: Math.round((WEEK / 8_412) * 100) / 100,
+  holders: HOLDERS,
+  avgPerHolder: Math.round((WEEK / HOLDERS) * 100) / 100,
   daily: DAILY,
   payouts: Array.from({ length: 5 }, (_, i) => ({
     when: `${i * 6 + 2}h ago`,
-    usd: Math.round(1800 + r() * 4200),
+    usd: Math.round((0.8 + r() * 4.2) * 100) / 100,
     chain: (["Solana", "Base", "BNB Chain", "Robinhood"] as const)[Math.floor(r() * 4)],
-    holders: Math.round(7600 + r() * 800),
+    holders: Math.round(38 + r() * 8),
   })),
 };
+
+/** Dollars and cents, for amounts this small. */
+const money = (n: number) => `$${n.toFixed(2)}`;
 
 const peak = Math.max(...DEMO.daily.map((d) => d.usd));
 
@@ -44,10 +48,10 @@ const peak = Math.max(...DEMO.daily.map((d) => d.usd));
 
 function Tiles({ compact }: { compact?: boolean }) {
   const tiles = [
-    { label: "Distributed to holders", value: fmtUsd(DEMO.totalUsd) },
-    { label: "Last 7 days", value: fmtUsd(DEMO.weekUsd) },
+    { label: "Distributed to holders", value: money(DEMO.totalUsd) },
+    { label: "Last 7 days", value: money(DEMO.weekUsd) },
     { label: "Holders paid", value: DEMO.holders.toLocaleString() },
-    { label: "Avg per holder, 7d", value: `$${DEMO.avgPerHolder.toFixed(2)}` },
+    { label: "Avg per holder, 7d", value: money(DEMO.avgPerHolder) },
   ];
   return (
     <dl className={compact ? "grid grid-cols-2 gap-2.5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-4"}>
@@ -63,10 +67,10 @@ function Tiles({ compact }: { compact?: boolean }) {
 
 function WeekChart() {
   return (
-    <div className="flex h-44 items-end gap-2.5" role="img" aria-label={`Demo daily distributions: ${DEMO.daily.map((d) => `${d.day} ${fmtUsd(d.usd)}`).join(", ")}`}>
+    <div className="flex h-44 items-end gap-2.5" role="img" aria-label={`Demo daily distributions: ${DEMO.daily.map((d) => `${d.day} ${money(d.usd)}`).join(", ")}`}>
       {DEMO.daily.map((d) => (
         <div key={d.day} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-          <span className="font-mono text-[10.5px] text-mute">{fmtUsd(d.usd)}</span>
+          <span className="font-mono text-[10.5px] text-mute">{money(d.usd)}</span>
           <div className="w-full rounded-t-[10px] [background:var(--g-accent)] opacity-90" style={{ height: `${(d.usd / peak) * 100}%` }} />
           <span className="font-mono text-[11px] text-dim">{d.day}</span>
         </div>
@@ -81,7 +85,7 @@ function Payouts() {
       {DEMO.payouts.map((p, i) => (
         <li key={i} className="flex items-center justify-between gap-3 border-b border-line py-3 last:border-b-0">
           <div className="min-w-0">
-            <p className="text-[14px] font-semibold">{fmtUsd(p.usd)} distributed</p>
+            <p className="text-[14px] font-semibold">{money(p.usd)} distributed</p>
             <p className="text-[12px] text-dim">
               {p.chain} · {p.holders.toLocaleString()} holders
             </p>
@@ -106,11 +110,7 @@ export function RevenueSection() {
           </>
         }
       />
-      <Reveal>
-        <div className="mb-4 flex flex-wrap items-center gap-3">
-         
-        </div>
-      </Reveal>
+ 
       <Reveal variant="scale">
         <Tiles />
       </Reveal>
@@ -140,7 +140,7 @@ export function RevenueSection() {
 export function RevenuePanel() {
   return (
     <div className="flex flex-col gap-3">
-     
+   
       <Tiles compact />
       <div className="tile rounded-[22px] p-4">
         <p className="label">Distributed per day · 7d</p>
@@ -151,7 +151,7 @@ export function RevenuePanel() {
       <div className="tile rounded-[22px] px-4 py-1">
         <Payouts />
       </div>
-     
+   
     </div>
   );
 }
