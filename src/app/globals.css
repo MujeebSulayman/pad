@@ -95,6 +95,10 @@ html {
 
   /* Canvas widgets (Game of Life). */
   --life-cell: rgba(201, 206, 214, 0.32);
+  --logo-hi: #f6f8fb;
+  --logo-mid: #c9ced6;
+  --logo-lo: #8a9099;
+  --logo-refl: #c9ced6;
 
   --nav-h: 60px;
   color-scheme: dark;
@@ -149,6 +153,10 @@ html[data-theme="light"] {
 
   --menu-shadow: 0 30px 70px -24px rgba(20, 28, 40, 0.4), 0 0 0 1px rgba(13, 14, 16, 0.06);
   --life-cell: rgba(13, 14, 16, 0.22);
+  --logo-hi: #4a4f57;
+  --logo-mid: #1e2026;
+  --logo-lo: #0d0e10;
+  --logo-refl: #3a3e45;
   color-scheme: light;
 }
 
