@@ -11,6 +11,7 @@ import { WalletButton } from "../wallet/wallet-menu";
 import { Badge, Button, Notice, Row } from "../ui";
 import { ChainPicker } from "./chain-picker";
 import { ActivityList } from "./launches";
+import { TechList } from "./tech";
 import { LaunchpadPicker } from "./launchpad-picker";
 import { TokenPreview } from "./launch-summary";
 import { MirrorPicker } from "./mirror-picker";
@@ -264,6 +265,19 @@ export function MobileView(p: ViewProps) {
                   </button>
                 );
               })}
+            </div>
+            <div className="mt-10">
+              <Intro
+                kicker="Under the hood"
+                title={
+                  <>
+                    Real contracts, <span className="text-mute">your signatures.</span>
+                  </>
+                }
+              >
+                Nothing is held on your behalf. Here is what happens when you launch or trade.
+              </Intro>
+              <TechList />
             </div>
           </section>
         )}

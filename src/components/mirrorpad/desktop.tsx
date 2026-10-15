@@ -7,6 +7,7 @@ import { LaunchesTable } from "./launches";
 import { LaunchpadPicker } from "./launchpad-picker";
 import { LaunchSummary } from "./launch-summary";
 import { MirrorFlow } from "./mirror-flow";
+import { TechSection } from "./tech";
 import { MirrorPicker } from "./mirror-picker";
 import { RunMonitor } from "./run-monitor";
 import { Section, SectionHead, StepHead } from "./section";
@@ -154,10 +155,11 @@ export function DesktopView(p: ViewProps) {
         <Studio {...p} />
         <VenueReport padId={p.padId} sort={p.sort} onSortChange={p.onSortChange} onSelectPad={p.onSelectPad} />
         <MirrorFlow chain={p.chain} pad={p.pad} draft={p.draft} mirrors={p.mirrors} />
+        <TechSection />
 
         <Section id="activity">
           <SectionHead
-            index="04"
+            index="05"
             eyebrow="Activity"
             title={
               <>

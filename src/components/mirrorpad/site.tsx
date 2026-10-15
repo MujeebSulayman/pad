@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CHAINS, LAUNCHPADS } from "@/lib/data";
 import { PRIVY_APP_ID } from "@/lib/env";
 import { cn } from "@/lib/format";
-import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Sparkles, TelegramLogo, Wallet } from "../icons";
+import { ArrowRight, ChevronDown, Grid, Help, Layers, Logo, Rocket, Wordmark, Shield, Sparkles, TelegramLogo, Wallet } from "../icons";
 import { LifeCanvas } from "../life-canvas";
 import { Reveal } from "../reveal";
 import { ThemeButton } from "../theme";
@@ -18,6 +18,7 @@ const NAV = [
   { id: "studio", label: "Studio", icon: Rocket },
   { id: "venues", label: "Venues", icon: Grid },
   { id: "how", label: "How it works", icon: Sparkles },
+  { id: "tech", label: "Tech", icon: Shield },
   { id: "activity", label: "Activity", icon: Layers },
   { id: "faq", label: "FAQ", icon: Help },
 ];
@@ -193,6 +194,7 @@ const COLUMNS = [
       { href: "#studio", label: "Launch studio" },
       { href: "#venues", label: "Venue fees" },
       { href: "#how", label: "How shadowing works" },
+      { href: "#tech", label: "Under the hood" },
       { href: "#activity", label: "Activity" },
     ],
   },
