@@ -198,7 +198,7 @@ const COLUMNS = [
   },
   {
     title: "Community",
-    links: [{ href: "https://t.me/+VWt6IazpJNpkZmE0", label: "Telegram" }],
+    links: [{ href: "https://t.me/Shadowpad_app", label: "Telegram" }],
   },
 ];
 
