@@ -152,7 +152,7 @@ export const Logo = ({ size = 28 }: { size?: number }) => (
       width: size,
       height: size,
       background: "var(--g-accent)",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.12), 0 8px 20px -8px rgba(150,200,40,.6)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.12), 0 8px 20px -8px rgba(255,91,31,.55)",
     }}
   >
     <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 16 16" fill="none" aria-hidden>
